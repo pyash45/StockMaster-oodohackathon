@@ -1,104 +1,603 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>IMS — Dashboard & Profile (Demo)</title>
+
+  <!-- Apply saved theme early to avoid flash -->
+  <script>
+    (function() {
+      try {
+        const t = localStorage.getItem('ims_theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+
   <style>
-    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
-    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-    body{margin:0;background:var(--bg);color:#111}
-    .app{display:flex;min-height:100vh}
+    /* --- Theme variables --- */
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --accent: #2563eb;
+      --muted: #6b7280;
+      --text: #111;
+      --card-shadow: rgba(15, 23, 42, 0.06);
+      --glass: rgba(255,255,255,0.6);
+      --input-border: #e6eef8;
+      --panel-border: #f1f5f9;
+    }
+
+    /* Dark theme */
+    :root[data-theme="dark"] {
+      --bg: #0b0f14;
+      --card: #0f1317;
+      --accent: #7da7ff;
+      --muted: #9aa6bd;
+      --text: #e6eef8;
+      --card-shadow: rgba(0, 0, 0, 0.6);
+      --glass: rgba(255,255,255,0.02);
+      --input-border: rgba(255,255,255,0.06);
+      --panel-border: rgba(255,255,255,0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
     /* Sidebar */
-    .sidebar{width:250px;background:linear-gradient(180deg,#0f172a,#0b1220);color:#fff;padding:22px 16px}
-    .brand{font-weight:700;font-size:18px;margin-bottom:18px}
-    .nav{margin-top:12px}
-    .nav a{display:flex;align-items:center;padding:10px 12px;border-radius:8px;color:#dbeafe;text-decoration:none;margin-bottom:6px;cursor:pointer}
-    .nav a.active{background:rgba(255,255,255,0.06)}
-    .nav a:hover{background:rgba(255,255,255,0.03)}
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, #0f172a, #0b1220);
+      color: #fff;
+      padding: 22px 16px;
+      transition: background .25s ease, color .25s ease;
+    }
+
+    /* Sidebar in dark theme: override to use variables */
+    :root[data-theme="dark"] .sidebar {
+      background: linear-gradient(180deg, #071019, #0a0f14);
+      color: var(--text);
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 18px;
+    }
+
+    .nav {
+      margin-top: 12px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: rgba(219,234,254,0.9);
+      text-decoration: none;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .nav a.active {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav a:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
     /* Main */
-    .main{flex:1;padding:18px}
-    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-    .search{display:flex;gap:8px;align-items:center}
-    .search input{padding:8px 12px;border-radius:10px;border:1px solid #e6eef8;min-width:220px}
-    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
-    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06);cursor:pointer}
-    .card h4{margin:0;font-size:13px;color:var(--muted)}
-    .card p{margin:8px 0 0;font-weight:700;font-size:18px}
+    .main {
+      flex: 1;
+      padding: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .search {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .search input {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--input-border);
+      min-width: 220px;
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px var(--card-shadow);
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .card h4 {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .card p {
+      margin: 8px 0 0;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
     /* Content areas */
-    .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
-    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #f1f5f9}
-    th{font-size:13px;color:var(--muted)}
-    .toolbar{display:flex;gap:8px;align-items:center}
-    .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer}
-    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(37,99,235,0.12)}
-    .floating{position:fixed;right:28px;bottom:28px;background:var(--accent);color:#fff;padding:14px;border-radius:50%;font-weight:700;box-shadow:0 10px 30px rgba(2,6,23,0.2);cursor:pointer}
-    .filters{display:flex;gap:8px;align-items:center}
+    .panel {
+      background: var(--card);
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px var(--card-shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--panel-border);
+      color: var(--text);
+    }
+
+    th {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.12);
+    }
+
+    .floating {
+      position: fixed;
+      right: 28px;
+      bottom: 28px;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px;
+      border-radius: 50%;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.2);
+      cursor: pointer;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     /* modal */
-    .modal-back{position:fixed;inset:0;background:rgba(2,6,23,0.4);display:none;align-items:center;justify-content:center}
-    .modal{background:var(--card);padding:18px;border-radius:12px;min-width:360px}
-    .form-row{display:flex;gap:8px;margin-bottom:8px}
-    .form-row input,.form-row select, .form-row textarea{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8}
-    .muted{color:var(--muted);font-size:13px}
+    .modal-back {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: var(--card);
+      padding: 18px;
+      border-radius: 12px;
+      min-width: 360px;
+      color: var(--text);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--input-border);
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
     /* profile */
-    .profile{display:grid;grid-template-columns:260px 1fr;gap:14px}
-    .profile-card{padding:18px;border-radius:12px;background:var(--card);box-shadow:0 6px 18px rgba(15,23,42,0.04);text-align:center}
-    .avatar{width:120px;height:120px;border-radius:12px;background:linear-gradient(135deg,#e6eef8,#dbeafe);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:34px;color:var(--accent);margin-bottom:8px}
-    .profile-details{padding:18px;background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
-    .field{display:flex;gap:12px;align-items:center;margin-bottom:10px}
-    .field label{width:120px;color:var(--muted)}
-    .activity{max-height:220px;overflow:auto}
+    .profile {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 14px;
+    }
+
+    .profile-card {
+      padding: 18px;
+      border-radius: 12px;
+      background: var(--card);
+      box-shadow: 0 6px 18px var(--card-shadow);
+      text-align: center;
+      color: var(--text);
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e6eef8, #dbeafe);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 34px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .profile-details {
+      padding: 18px;
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px var(--card-shadow);
+      color: var(--text);
+    }
+
+    .field {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      width: 120px;
+      color: var(--muted);
+    }
+
+    .activity {
+      max-height: 220px;
+      overflow: auto;
+    }
+
     /* responsive */
-    @media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.app{flex-direction:column}.main{padding:12px}.profile{grid-template-columns:1fr}}
-  /* sidebar collapse */
-    .sidebar{transition:width 0.3s ease,padding 0.3s ease}
-    .sidebar.collapsed{width:70px;padding:22px 6px}
-    .nav a span.label{transition:opacity 0.25s ease,transform 0.25s ease}
-    .sidebar.collapsed span.label{opacity:0;transform:translateX(-10px)}
-    .nav a .icon{margin-right:10px}
+    @media (max-width:1000px) {
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
 
-    /* brand/subtitle blend when collapsed */
-    .sidebar .brand{transition:opacity 0.25s ease,transform 0.25s ease}
-    .sidebar .muted{transition:opacity 0.25s ease,transform 0.25s ease}
-    .sidebar.collapsed .brand{opacity:0;transform:none;pointer-events:none;position:absolute;}
-    .sidebar.collapsed .muted{opacity:0;transform:none;pointer-events:none;position:absolute;}
-      /* Filters — upgraded styles */
-    .filters{display:flex;gap:10px;align-items:center}
-    .filter-wrapper{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#f8fbff,#ffffff);padding:6px;border-radius:12px;border:1px solid rgba(15,23,42,0.04);box-shadow:0 6px 18px rgba(15,23,42,0.03)}
-    .filters select{appearance:none;-webkit-appearance:none;padding:10px 14px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent;min-width:160px;font-weight:600;color:var(--muted);cursor:pointer}
-    .filters select:focus{outline:none;box-shadow:0 6px 18px rgba(37,99,235,0.06)}
-    .filter-pill{background:linear-gradient(180deg,#eef2ff,#f3f8ff);padding:8px 12px;border-radius:999px;font-weight:700;color:var(--accent);border:1px solid rgba(37,99,235,0.06)}
-    .filter-search{display:flex;align-items:center;gap:8px;background:#fff;padding:6px;border-radius:10px;border:1px solid rgba(15,23,42,0.04)}
-    .filter-search input{border:none;padding:8px;outline:none}
-    @media (max-width:800px){.filters{flex-direction:column;align-items:flex-start}.filters select{min-width:100%}}
-      /* product grid & boxes */
-    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:8px}
-    .product-box{background:linear-gradient(180deg,var(--card),#fbfdff);border-radius:12px;padding:12px;box-shadow:0 8px 20px rgba(2,6,23,0.04);display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid rgba(15,23,42,0.03);transition:transform .12s ease,box-shadow .12s ease}
-    .product-box:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.06)}
-    .product-box .meta{display:flex;gap:12px;align-items:center}
-    .product-box .meta .thumb{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,#eef2ff,#f0f7ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
-    .product-box .actions{display:flex;align-items:center;gap:10px}
-    .product-box .qty-badge{background:linear-gradient(180deg,#eef2ff,#f8fbff);padding:8px 12px;border-radius:999px;font-weight:800;color:var(--accent);border:1px solid rgba(37,99,235,0.06)}
+      .sidebar {
+        display: none;
+      }
 
-      /* product detail (e-commerce style) */
-    .product-detail{display:flex;gap:18px;align-items:flex-start}
-    .product-detail .gallery{width:320px;min-width:200px}
-    .product-detail .gallery img{width:100%;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.08);display:block}
-    .product-detail .info{flex:1}
-    .product-detail .price{font-size:22px;font-weight:800;color:var(--accent);margin:8px 0}
-    .product-detail .desc{color:var(--muted);margin-top:8px}
-    .product-detail .buyrow{display:flex;gap:8px;align-items:center;margin-top:14px}
+      .app {
+        flex-direction: column;
+      }
+
+      .main {
+        padding: 12px;
+      }
+
+      .profile {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* sidebar collapse */
+    .sidebar {
+      transition: width 0.3s ease, padding 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      padding: 22px 6px;
+    }
+
+    .nav a span.label {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .sidebar.collapsed span.label {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+
+    /* Filters — upgraded styles */
+    .filters {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(180deg, #f8fbff, #ffffff);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+    }
+
+    .filters select {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      background: transparent;
+      min-width: 160px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .filters select:focus {
+      outline: none;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.06);
+    }
+
+    .filter-pill {
+      background: linear-gradient(180deg, #eef2ff, #f3f8ff);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.06);
+    }
+
+    .filter-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+    }
+
+    .filter-search input {
+      border: none;
+      padding: 8px;
+      outline: none;
+    }
+
+    @media (max-width:800px) {
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .filters select {
+        min-width: 100%;
+      }
+    }
+
+    /* product grid & boxes */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .product-box {
+      background: linear-gradient(180deg, var(--card), #fbfdff);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(2, 6, 23, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.03);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+
+    :root[data-theme="dark"] .product-box {
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    .product-box:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px rgba(2, 6, 23, 0.06);
+    }
+
+    .product-box .meta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .product-box .meta .thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #eef2ff, #f0f7ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    :root[data-theme="dark"] .product-box .meta .thumb {
+      background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color: var(--accent);
+    }
+
+    .product-box .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .product-box .qty-badge {
+      background: linear-gradient(180deg, #eef2ff, #f8fbff);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.06);
+    }
+
+    :root[data-theme="dark"] .product-box .qty-badge {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color: var(--accent);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
 
     /* cart side panel */
-    .cart-side{position:fixed;right:-420px;top:0;height:100%;width:380px;background:var(--card);box-shadow:0 20px 60px rgba(2,6,23,0.2);padding:18px;transition:right .28s ease;z-index:60;overflow:auto}
-    .cart-side.open{right:0}
-    .cart-side h3{margin-top:0}
-    .cart-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9}
+    .cart-side {
+      position: fixed;
+      right: -420px;
+      top: 0;
+      height: 100%;
+      width: 380px;
+      background: var(--card);
+      box-shadow: 0 20px 60px rgba(2, 6, 23, 0.2);
+      padding: 18px;
+      transition: right .28s ease;
+      z-index: 60;
+      overflow: auto;
+    }
+
+    .cart-side.open {
+      right: 0;
+    }
+
+    .cart-side h3 {
+      margin-top: 0;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    /* small switch style for the theme toggle */
+    .switch {
+      --w: 52px;
+      display: inline-block;
+      position: relative;
+      width: var(--w);
+      height: 28px;
+    }
+
+    .switch input { display: none; }
+
+    .switch .track {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #eef2ff, #f3f8ff);
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.06);
+      position: relative;
+    }
+
+    .switch .track .thumb {
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform .18s ease;
+      box-shadow: 0 6px 18px rgba(15,23,42,0.08);
+    }
+
+    .switch input:checked + .track { background: linear-gradient(180deg, rgba(20,30,60,0.9), rgba(10,15,30,0.95)); border-color: rgba(255,255,255,0.06); }
+    .switch input:checked + .track .thumb { transform: translateX(24px); background: #fff; }
+
+    /* adjust some elements for dark theme */
+    :root[data-theme="dark"] .search input,
+    :root[data-theme="dark"] .modal,
+    :root[data-theme="dark"] .panel,
+    :root[data-theme="dark"] .profile-card,
+    :root[data-theme="dark"] .profile-details,
+    :root[data-theme="dark"] table, :root[data-theme="dark"] th, :root[data-theme="dark"] td {
+      background: transparent;
+      color: var(--text);
+    }
 
   </style>
 </head>
+
 <body>
   <div class="app">
     <aside class="sidebar">
@@ -132,24 +631,59 @@
       <!-- Views container -->
       <section id="view-dashboard" class="view">
         <section class="cards">
-          <div class="card" id="cardTotal"><h4>Total Products</h4><p id="kpiproducts">0</p></div>
-          <div class="card" id="cardLow"><h4>Low Stock</h4><p id="kpilow">0</p></div>
-          <div class="card" id="cardRec"><h4>Pending Receipts</h4><p id="kpipendrec">0</p></div>
-          <div class="card" id="cardDel"><h4>Pending Deliveries</h4><p id="kpipenddel">0</p></div>
-          <div class="card" id="cardTrans"><h4>Transfers</h4><p id="kpitrans">0</p></div>
+          <div class="card" id="cardTotal">
+            <h4>Total Products</h4>
+            <p id="kpiproducts">0</p>
+          </div>
+          <div class="card" id="cardLow">
+            <h4>Low Stock</h4>
+            <p id="kpilow">0</p>
+          </div>
+          <div class="card" id="cardRec">
+            <h4>Pending Receipts</h4>
+            <p id="kpipendrec">0</p>
+          </div>
+          <div class="card" id="cardDel">
+            <h4>Pending Deliveries</h4>
+            <p id="kpipenddel">0</p>
+          </div>
+          <div class="card" id="cardTrans">
+            <h4>Transfers</h4>
+            <p id="kpitrans">0</p>
+          </div>
         </section>
 
         <section class="panel">
           <div class="panel-header">
             <h3>Products</h3>
             <div class="filters">
-              <select id="filterLocation"><option value="all">All locations</option><option value="main">Main Warehouse</option><option value="prod">Production Rack</option></select>
-              <select id="filterCategory"><option value="all">All categories</option><option value="raw">Raw Material</option><option value="finished">Finished Goods</option></select>
+              <select id="filterLocation">
+                <option value="all">All locations</option>
+                <option value="main">Main Warehouse</option>
+                <option value="prod">Production Rack</option>
+              </select>
+              <select id="filterCategory">
+                <option value="all">All categories</option>
+                <option value="raw">Raw Material</option>
+                <option value="finished">Finished Goods</option>
+              </select>
             </div>
           </div>
           <div id="productGrid" class="product-grid"></div>
           <table id="productTable" style="margin-top:12px">
-            <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Total Stock</th><th>Main</th><th>Prod</th><th>Reorder</th><th>Actions</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Total Stock</th>
+                <th>Main</th>
+                <th>Prod</th>
+                <th>Reorder</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </section>
@@ -162,8 +696,9 @@
             <div id="avatar" class="avatar">RK</div>
             <div style="font-weight:700;font-size:18px;margin-top:6px" id="u_name">Rohit Koli</div>
             <div class="muted" id="u_role">Inventory Manager</div>
-            <div style="margin-top:12px"><button class="btn ghost" onclick="openModal('editProfile')">Edit Profile</button></div>
-            <hr style="margin:14px 0;border:none;border-top:1px solid #f1f5f9" />
+            <div style="margin-top:12px"><button class="btn ghost" onclick="openModal('editProfile')">Edit
+                Profile</button></div>
+            <hr style="margin:14px 0;border:none;border-top:1px solid var(--panel-border)" />
             <div style="text-align:left">
               <div class="muted" style="font-size:13px;margin-bottom:8px">Quick Actions</div>
               <button class="btn" onclick="openModal('receipt')">Receive Goods</button>
@@ -173,10 +708,18 @@
 
           <div class="profile-details">
             <h3>Profile Details</h3>
-            <div class="field"><label>Name</label><div id="u_name_f" class="muted">Rohit Koli</div></div>
-            <div class="field"><label>Email</label><div id="u_email_f" class="muted">rohit@example.com</div></div>
-            <div class="field"><label>Role</label><div id="u_role_f" class="muted">Inventory Manager</div></div>
-            <div class="field"><label>Bio</label><div id="u_bio_f" class="muted">Keeps the shelves tidy and the records tidy-er.</div></div>
+            <div class="field"><label>Name</label>
+              <div id="u_name_f" class="muted">Rohit Koli</div>
+            </div>
+            <div class="field"><label>Email</label>
+              <div id="u_email_f" class="muted">rohit@example.com</div>
+            </div>
+            <div class="field"><label>Role</label>
+              <div id="u_role_f" class="muted">Inventory Manager</div>
+            </div>
+            <div class="field"><label>Bio</label>
+              <div id="u_bio_f" class="muted">Keeps the shelves tidy and the records tidy-er.</div>
+            </div>
 
             <h4 style="margin-top:12px">Recent Activity</h4>
             <div class="activity" id="activityList">
@@ -184,8 +727,11 @@
             </div>
 
             <h4 style="margin-top:12px">Security</h4>
-            <div class="field"><label>Password</label><div class="muted">Last changed: <span id="pw_changed">—</span></div></div>
-            <div style="text-align:right;margin-top:12px"><button class="btn ghost" onclick="openModal('changePassword')">Change Password</button></div>
+            <div class="field"><label>Password</label>
+              <div class="muted">Last changed: <span id="pw_changed">—</span></div>
+            </div>
+            <div style="text-align:right;margin-top:12px"><button class="btn ghost"
+                onclick="openModal('changePassword')">Change Password</button></div>
           </div>
         </div>
       </section>
@@ -203,14 +749,42 @@
           </div>
           <div id="productGridProducts" class="product-grid" style="margin-top:12px"></div>
           <table id="productAdminTable" style="margin-top:12px">
-            <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Total</th><th>Main</th><th>Prod</th><th>Reorder lvl</th><th>Reorder qty</th><th>Actions</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Total</th>
+                <th>Main</th>
+                <th>Prod</th>
+                <th>Reorder lvl</th>
+                <th>Reorder qty</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
       </section>
-      <section id="view-receipts" class="view" style="display:none"><div class="panel"><h3>Receipts</h3><p class="muted">(list receipts)</p></div></section>
-      <section id="view-deliveries" class="view" style="display:none"><div class="panel"><h3>Deliveries</h3><p class="muted">(list deliveries)</p></div></section>
-      <section id="view-transfers" class="view" style="display:none"><div class="panel"><h3>Transfers</h3><p class="muted">(list transfers)</p></div></section>
+      <section id="view-receipts" class="view" style="display:none">
+        <div class="panel">
+          <h3>Receipts</h3>
+          <p class="muted">(list receipts)</p>
+        </div>
+      </section>
+      <section id="view-deliveries" class="view" style="display:none">
+        <div class="panel">
+          <h3>Deliveries</h3>
+          <p class="muted">(list deliveries)</p>
+        </div>
+      </section>
+      <section id="view-transfers" class="view" style="display:none">
+        <div class="panel">
+          <h3>Transfers</h3>
+          <p class="muted">(list transfers)</p>
+        </div>
+      </section>
       <section id="view-settings" class="view" style="display:none">
         <div class="panel">
           <h3>Settings</h3>
@@ -219,7 +793,9 @@
           <hr style="margin:12px 0" />
           <h4>Profile (quick)</h4>
           <div style="display:flex;gap:12px;align-items:center">
-            <div style="min-width:80px"><div id="settings_avatar" class="avatar">RK</div></div>
+            <div style="min-width:80px">
+              <div id="settings_avatar" class="avatar">RK</div>
+            </div>
             <div>
               <div id="settings_name" style="font-weight:700">Rohit Koli</div>
               <div class="muted" id="settings_role">Inventory Manager</div>
@@ -237,7 +813,8 @@
               <div class="small">Dark theme</div>
               <div class="small muted">Toggle application dark mode</div>
             </div>
-            <label class="switch"><input type="checkbox" id="themeToggle" /><span class="track"><span class="thumb"></span></span></label>
+            <label class="switch"><input type="checkbox" id="themeToggle" /><span class="track"><span
+                  class="thumb"></span></span></label>
           </div>
 
         </div>
@@ -267,13 +844,50 @@
   </div>
 
   <script>
+    // === THEME HANDLER ===
+    (function() {
+      const KEY = 'ims_theme';
+      const checkbox = document.getElementById('themeToggle');
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      }
+
+      // initialize checkbox from storage
+      try {
+        const stored = localStorage.getItem(KEY);
+        if (stored === 'dark') {
+          if (checkbox) checkbox.checked = true;
+          applyTheme('dark');
+        } else {
+          if (checkbox) checkbox.checked = false;
+          applyTheme('light');
+        }
+      } catch (e) { /* ignore */ }
+
+      // toggle handler
+      if (checkbox) {
+        checkbox.addEventListener('change', (e) => {
+          const setTo = e.target.checked ? 'dark' : 'light';
+          try { localStorage.setItem(KEY, setTo); } catch (err) {}
+          applyTheme(setTo);
+        });
+      }
+    })();
+  </script>
+
+  <script>
     // Load user from localStorage if exists
     let savedUser = {};
-    try { savedUser = JSON.parse(localStorage.getItem('ims_user')) || {}; } catch(e){ savedUser = {}; }
+    try { savedUser = JSON.parse(localStorage.getItem('ims_user')) || {}; } catch (e) { savedUser = {}; }
 
     const store = {
       user: {
-        id:1,
+        id: 1,
         name: savedUser.name || 'Rohit Koli',
         email: savedUser.email || 'rohit@example.com',
         role: savedUser.role || 'Inventory Manager',
@@ -282,48 +896,48 @@
         password_changed: savedUser.password_changed || new Date().toLocaleString()
       },
       products: [
-        {id:1,name:'Steel Rods',sku:'ST-001',category:'raw',unit:'kg',stock:127,locations:{main:127,prod:0},reorder_level:20,reorder_qty:50},
-        {id:2,name:'Wooden Chair',sku:'CH-101',category:'finished',unit:'pcs',stock:43,locations:{main:10,prod:33},reorder_level:10,reorder_qty:20},
-        {id:3,name:'Nails Pack',sku:'NA-09',category:'raw',unit:'box',stock:8,locations:{main:8,prod:0},reorder_level:10,reorder_qty:30},
-        {id:4,name:'Paint Bucket',sku:'PB-55',category:'raw',unit:'ltr',stock:22,locations:{main:22,prod:0},reorder_level:5,reorder_qty:10},
-        {id:5,name:'Plastic Frame',sku:'PF-88',category:'finished',unit:'pcs',stock:5,locations:{main:5,prod:0},reorder_level:8,reorder_qty:20},
-        {id:6,name:'Copper Wire',sku:'CW-19',category:'raw',unit:'roll',stock:67,locations:{main:67,prod:0},reorder_level:15,reorder_qty:40}
+        { id: 1, name: 'Steel Rods', sku: 'ST-001', category: 'raw', unit: 'kg', stock: 127, locations: { main: 127, prod: 0 }, reorder_level: 20, reorder_qty: 50 },
+        { id: 2, name: 'Wooden Chair', sku: 'CH-101', category: 'finished', unit: 'pcs', stock: 43, locations: { main: 10, prod: 33 }, reorder_level: 10, reorder_qty: 20 },
+        { id: 3, name: 'Nails Pack', sku: 'NA-09', category: 'raw', unit: 'box', stock: 8, locations: { main: 8, prod: 0 }, reorder_level: 10, reorder_qty: 30 },
+        { id: 4, name: 'Paint Bucket', sku: 'PB-55', category: 'raw', unit: 'ltr', stock: 22, locations: { main: 22, prod: 0 }, reorder_level: 5, reorder_qty: 10 },
+        { id: 5, name: 'Plastic Frame', sku: 'PF-88', category: 'finished', unit: 'pcs', stock: 5, locations: { main: 5, prod: 0 }, reorder_level: 8, reorder_qty: 20 },
+        { id: 6, name: 'Copper Wire', sku: 'CW-19', category: 'raw', unit: 'roll', stock: 67, locations: { main: 67, prod: 0 }, reorder_level: 15, reorder_qty: 40 }
       ],
-      receipts:[],deliveries:[],transfers:[],history:[{type:'login',text:'Logged in'},{type:'receipt',text:'Received 20 × Steel Rods'},{type:'delivery',text:'Shipped 3 × Wooden Chair'}]
+      receipts: [], deliveries: [], transfers: [], history: [{ type: 'login', text: 'Logged in' }, { type: 'receipt', text: 'Received 20 × Steel Rods' }, { type: 'delivery', text: 'Shipped 3 × Wooden Chair' }]
     }
 
     // Utility
-    const el = (s)=>document.querySelector(s)
-    const elAll = (s)=>document.querySelectorAll(s)
+    const el = (s) => document.querySelector(s)
+    const elAll = (s) => document.querySelectorAll(s)
 
     // expose toggleSidebar on window to ensure it's available to onclick attributes
-    window.toggleSidebar = function(){
+    window.toggleSidebar = function () {
       const sb = document.querySelector('.sidebar');
       const collapsed = sb.classList.toggle('collapsed');
       sb.setAttribute('aria-expanded', String(!collapsed));
     }
 
     // Navigation wiring
-    document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click', ()=>{ const view = a.dataset.view; switchView(view); } ))
+    document.querySelectorAll('.nav a').forEach(a => a.addEventListener('click', () => { const view = a.dataset.view; switchView(view); }))
 
-    window.switchView = function(view){
-      document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active', a.dataset.view===view))
-      document.querySelectorAll('.view').forEach(v=>v.style.display=(v.id==='view-'+view)?'block':'none')
-      if(view==='dashboard'){render()}
-      if(view==='profile'){renderProfile()}
-      if(view==='products'){renderProductsAdmin()}
-      if(view==='receipts'){renderReceipts()}
-      if(view==='deliveries'){renderDeliveries()}
-      if(view==='transfers'){renderTransfers()}
+    window.switchView = function (view) {
+      document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('active', a.dataset.view === view))
+      document.querySelectorAll('.view').forEach(v => v.style.display = (v.id === 'view-' + view) ? 'block' : 'none')
+      if (view === 'dashboard') { render() }
+      if (view === 'profile') { renderProfile() }
+      if (view === 'products') { renderProductsAdmin() }
+      if (view === 'receipts') { renderReceipts() }
+      if (view === 'deliveries') { renderDeliveries() }
+      if (view === 'transfers') { renderTransfers() }
     }
 
     // Render products table & KPIs (dashboard grid)
-    function render(){
+    function render() {
       const grid = el('#productGrid')
-      if(grid){
-        grid.innerHTML=''
-        store.products.forEach(p=>{
-          const low = p.stock <= (p.reorder_level||10)
+      if (grid) {
+        grid.innerHTML = ''
+        store.products.forEach(p => {
+          const low = p.stock <= (p.reorder_level || 10)
           const box = document.createElement('div')
           box.className = 'product-box'
           box.style.display = 'flex'
@@ -339,7 +953,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:12px">
               <div class="qty-badge">${p.stock}</div>
-              ${low?`<div class="filter-pill" title="Below reorder level">Reorder</div>`:''}
+              ${low ? `<div class="filter-pill" title="Below reorder level">Reorder</div>` : ''}
             </div>`
           grid.appendChild(box)
         })
@@ -349,13 +963,13 @@
     }
 
     // Products admin rendering (detailed product tab)
-    function renderProductsAdmin(){
+    function renderProductsAdmin() {
       const gridProducts = el('#productGridProducts');
-      if(gridProducts){
+      if (gridProducts) {
         gridProducts.innerHTML = '';
-        store.products.forEach(p=>{
+        store.products.forEach(p => {
           const box = document.createElement('div');
-          box.className='product-box';
+          box.className = 'product-box';
           box.innerHTML = `
             <div class='meta' style='cursor:pointer' onclick="openProductCard(${p.id})">
               <div class='thumb'>${p.sku.split('-')[0]}</div>
@@ -373,11 +987,11 @@
       }
 
       const tbody = el('#productAdminTable tbody')
-      if(tbody){
+      if (tbody) {
         tbody.innerHTML = ''
-        store.products.forEach(p=>{
+        store.products.forEach(p => {
           const tr = document.createElement('tr')
-          tr.innerHTML = `<td>${p.name}</td><td>${p.sku}</td><td>${p.category}</td><td>${p.unit}</td><td>${p.stock}</td><td>${(p.locations.main||0)}</td><td>${(p.locations.prod||0)}</td><td>${p.reorder_level||''}</td><td>${p.reorder_qty||''}</td><td><button class='btn ghost' onclick="openModal('editProduct',${p.id})">Edit</button> <button class='btn ghost' onclick="openModal('adjust',${p.id})">Adjust</button></td>`
+          tr.innerHTML = `<td>${p.name}</td><td>${p.sku}</td><td>${p.category}</td><td>${p.unit}</td><td>${p.stock}</td><td>${(p.locations.main || 0)}</td><td>${(p.locations.prod || 0)}</td><td>${p.reorder_level || ''}</td><td>${p.reorder_qty || ''}</td><td><button class='btn ghost' onclick="openModal('editProduct',${p.id})">Edit</button> <button class='btn ghost' onclick="openModal('adjust',${p.id})">Adjust</button></td>`
           tbody.appendChild(tr)
         })
       }
@@ -385,20 +999,20 @@
       render()
     }
 
-    function updateKPIs(){
+    function updateKPIs() {
       el('#kpiproducts').textContent = store.products.length
-      el('#kpilow').textContent = store.products.filter(p=>p.stock<= (p.reorder_level||10)).length
-      el('#kpipendrec').textContent = store.receipts.filter(r=>r.status!=='Done').length
-      el('#kpipenddel').textContent = store.deliveries.filter(d=>d.status!=='Done').length
+      el('#kpilow').textContent = store.products.filter(p => p.stock <= (p.reorder_level || 10)).length
+      el('#kpipendrec').textContent = store.receipts.filter(r => r.status !== 'Done').length
+      el('#kpipenddel').textContent = store.deliveries.filter(d => d.status !== 'Done').length
       el('#kpitrans').textContent = store.transfers.length
     }
 
     // Profile rendering
-    function renderProfile(){
+    function renderProfile() {
       const u = store.user
-      const initials = (u.name||'').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase() || 'U'
+      const initials = (u.name || '').split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase() || 'U'
       const avatarEl = el('#avatar')
-      if(u.avatar){ avatarEl.style.backgroundImage = `url(${u.avatar})`; avatarEl.style.backgroundSize='cover'; avatarEl.textContent = '' } else { avatarEl.style.backgroundImage=''; avatarEl.textContent = initials }
+      if (u.avatar) { avatarEl.style.backgroundImage = `url(${u.avatar})`; avatarEl.style.backgroundSize = 'cover'; avatarEl.textContent = '' } else { avatarEl.style.backgroundImage = ''; avatarEl.textContent = initials }
       el('#u_name').textContent = u.name
       el('#u_role').textContent = u.role
       el('#u_name_f').textContent = u.name
@@ -409,21 +1023,21 @@
 
       const activity = el('#activityList')
       activity.innerHTML = ''
-      store.history.slice().reverse().forEach(h=>{
+      store.history.slice().reverse().forEach(h => {
         const d = document.createElement('div')
-        d.style.padding='8px'; d.style.borderBottom='1px solid #f1f5f9'
+        d.style.padding = '8px'; d.style.borderBottom = '1px solid var(--panel-border)'
         d.innerHTML = `<div style="font-size:13px;color:var(--muted)">${h.type.toUpperCase()}</div><div style="font-weight:600">${h.text}</div>`
         activity.appendChild(d)
       })
     }
 
     // Modal manager
-    function openModal(type,id){
+    function openModal(type, id) {
       const modalBack = el('#modalBack')
       const modalContent = el('#modalContent')
-      modalBack.style.display='flex'
+      modalBack.style.display = 'flex'
       let html = ''
-      if(type==='product'){
+      if (type === 'product') {
         html = ` <h3>Add Product</h3>
           <div class='form-row'><input id='p_name' placeholder='Name' /><input id='p_sku' placeholder='SKU' /></div>
           <div class='form-row'><select id='p_cat'><option value='raw'>Raw Material</option><option value='finished'>Finished Goods</option></select><input id='p_unit' placeholder='Unit (kg/pcs/box)' /></div>
@@ -431,38 +1045,38 @@
           <div class='form-row'><input id='p_loc_main' type='number' placeholder='Main location stock (optional)' /><input id='p_loc_prod' type='number' placeholder='Production stock (optional)' /></div>
           <div class='form-row'><input id='p_reorder_level' type='number' placeholder='Reorder level (notify when below)' /><input id='p_reorder_qty' type='number' placeholder='Reorder quantity' /></div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveProduct()'>Save</button></div>`
-      } else if(type==='editProduct'){
-        const p = store.products.find(x=>x.id===id)
+      } else if (type === 'editProduct') {
+        const p = store.products.find(x => x.id === id)
         html = `<h3>Edit Product — ${p.name}</h3>
           <div class='form-row'><input id='p_name' value='${p.name}' placeholder='Name' /><input id='p_sku' value='${p.sku}'/></div>
-          <div class='form-row'><select id='p_cat'><option value='raw' ${p.category==='raw'?'selected':''}>Raw Material</option><option value='finished' ${p.category==='finished'?'selected':''}>Finished Goods</option></select><input id='p_unit' value='${p.unit}' /></div>
+          <div class='form-row'><select id='p_cat'><option value='raw' ${p.category === 'raw' ? 'selected' : ''}>Raw Material</option><option value='finished' ${p.category === 'finished' ? 'selected' : ''}>Finished Goods</option></select><input id='p_unit' value='${p.unit}' /></div>
           <div class='form-row'><input id='p_stock' type='number' value='${p.stock}' placeholder='Total stock' /></div>
-          <div class='form-row'><input id='p_loc_main' type='number' value='${p.locations.main||0}' placeholder='Main location stock' /><input id='p_loc_prod' type='number' value='${p.locations.prod||0}' placeholder='Production stock' /></div>
-          <div class='form-row'><input id='p_reorder_level' type='number' value='${p.reorder_level||0}' placeholder='Reorder level' /><input id='p_reorder_qty' type='number' value='${p.reorder_qty||0}' placeholder='Reorder quantity' /></div>
+          <div class='form-row'><input id='p_loc_main' type='number' value='${p.locations.main || 0}' placeholder='Main location stock' /><input id='p_loc_prod' type='number' value='${p.locations.prod || 0}' placeholder='Production stock' /></div>
+          <div class='form-row'><input id='p_reorder_level' type='number' value='${p.reorder_level || 0}' placeholder='Reorder level' /><input id='p_reorder_qty' type='number' value='${p.reorder_qty || 0}' placeholder='Reorder quantity' /></div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='updateProduct(${p.id})'>Update</button></div>`
-      } else if(type==='receipt'){
+      } else if (type === 'receipt') {
         html = `<h3>Create Receipt</h3>
           <div class='form-row'><input id='r_supplier' placeholder='Supplier name' /></div>
-          <div class='form-row'><select id='r_product'>${store.products.map(p=>`<option value='${p.id}' ${id===p.id?"selected":""}>${p.name} — ${p.sku}</option>`).join('')}</select><input id='r_qty' type='number' placeholder='Qty' /></div>
+          <div class='form-row'><select id='r_product'>${store.products.map(p => `<option value='${p.id}' ${id === p.id ? "selected" : ""}>${p.name} — ${p.sku}</option>`).join('')}</select><input id='r_qty' type='number' placeholder='Qty' /></div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveReceipt()'>Receive</button></div>`
-      } else if(type==='delivery'){
+      } else if (type === 'delivery') {
         html = `<h3>Create Delivery</h3>
           <div class='form-row'><input id='d_customer' placeholder='Customer name' /></div>
-          <div class='form-row'><select id='d_product'>${store.products.map(p=>`<option value='${p.id}'>${p.name} — ${p.sku} (stock:${p.stock})</option>`).join('')}</select><input id='d_qty' type='number' placeholder='Qty' /></div>
+          <div class='form-row'><select id='d_product'>${store.products.map(p => `<option value='${p.id}'>${p.name} — ${p.sku} (stock:${p.stock})</option>`).join('')}</select><input id='d_qty' type='number' placeholder='Qty' /></div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveDelivery()'>Dispatch</button></div>`
-      } else if(type==='adjust'){
-        const p = store.products.find(x=>x.id===id)
+      } else if (type === 'adjust') {
+        const p = store.products.find(x => x.id === id)
         html = `<h3>Adjust Stock — ${p.name}</h3>
           <div class='form-row'><input id='a_count' type='number' value='${p.stock}' /></div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveAdjustment(${p.id})'>Adjust</button></div>`
-      } else if(type==='quick'){
+      } else if (type === 'quick') {
         html = `<h3>Quick Actions</h3>
           <div class='form-row'>
             <button class='btn' onclick="openModal('receipt')">Receive Goods</button>
             <button class='btn' onclick="openModal('delivery')">Ship Goods</button>
           </div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
-      } else if(type==='editProfile'){
+      } else if (type === 'editProfile') {
         const u = store.user
         html = `<h3>Edit Profile</h3>
           <div class='form-row'><input id='u_name_i' placeholder='Full name' value='${u.name}' /></div>
@@ -471,7 +1085,7 @@
           <div class='form-row'><textarea id='u_bio_i' placeholder='Bio'>${u.bio}</textarea></div>
           <div class='form-row'><label style='width:120px'>Avatar</label><input id='u_avatar_i' type='file' accept='image/*' /></div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveProfile()'>Save</button></div>`
-      } else if(type==='changePassword'){
+      } else if (type === 'changePassword') {
         html = `<h3>Change Password</h3>
           <div class='form-row'><input id='old_pw' type='password' placeholder='Current password' /></div>
           <div class='form-row'><input id='new_pw' type='password' placeholder='New password' /></div>
@@ -481,16 +1095,16 @@
       modalContent.innerHTML = html
 
       const fileInput = modalContent.querySelector('#u_avatar_i')
-      if(fileInput){ fileInput.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ()=>{ fileInput.dataset.preview = reader.result }; reader.readAsDataURL(f) }) }
+      if (fileInput) { fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const reader = new FileReader(); reader.onload = () => { fileInput.dataset.preview = reader.result }; reader.readAsDataURL(f) }) }
     }
-    function closeModal(){el('#modalBack').style.display='none'}
+    function closeModal() { el('#modalBack').style.display = 'none' }
 
     // Open product detail card (e-commerce like)
-    function openProductCard(pid){
-      const p = store.products.find(x=>x.id===pid); if(!p) return; const modalBack = el('#modalBack'); const modalContent = el('#modalContent');
-      modalBack.style.display='flex'
+    function openProductCard(pid) {
+      const p = store.products.find(x => x.id === pid); if (!p) return; const modalBack = el('#modalBack'); const modalContent = el('#modalContent');
+      modalBack.style.display = 'flex'
       const imgUrl = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="#eef6ff"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#2563eb" font-size="24">Product Image</text></svg>'
-      const needsReorder = p.stock <= (p.reorder_level||0)
+      const needsReorder = p.stock <= (p.reorder_level || 0)
       modalContent.innerHTML = `
         <div class="product-detail">
           <div class="gallery"><img src="${imgUrl}" alt="${p.name}" /></div>
@@ -498,11 +1112,11 @@
             <h2 style="margin:0">${p.name}</h2>
             <div class="muted" style="margin-top:6px">SKU: ${p.sku} • Category: ${p.category}</div>
             <div class="price">Total Stock: ${p.stock} ${p.unit}</div>
-            <div class="desc">Locations — Main: ${p.locations.main||0}, Production: ${p.locations.prod||0}</div>
-            <div class="desc">Reorder rule — Level: ${p.reorder_level||'—'} · Qty: ${p.reorder_qty||'—'}</div>
-            ${needsReorder?`<div style="margin-top:8px;color:#dc2626;font-weight:800">⚠️ Below reorder level — consider ordering ${p.reorder_qty||'(set qty)'} units</div>`:''}
+            <div class="desc">Locations — Main: ${p.locations.main || 0}, Production: ${p.locations.prod || 0}</div>
+            <div class="desc">Reorder rule — Level: ${p.reorder_level || '—'} · Qty: ${p.reorder_qty || '—'}</div>
+            ${needsReorder ? `<div style="margin-top:8px;color:#dc2626;font-weight:800">⚠️ Below reorder level — consider ordering ${p.reorder_qty || '(set qty)'} units</div>` : ''}
             <div class="buyrow">
-              <input id="card_qty" type="number" value="1" min="1" style="width:80px;padding:8px;border-radius:8px;border:1px solid #e6eef8" />
+              <input id="card_qty" type="number" value="1" min="1" style="width:80px;padding:8px;border-radius:8px;border:1px solid var(--input-border)" />
               <button class='btn' onclick="addToCart(${p.id})">Add to Cart</button>
               <button class='btn' onclick="openModal('receipt',${p.id})">+ Add Stock</button>
               <button class='btn ghost' onclick="openModal('adjust',${p.id})">Adjust</button>
@@ -513,23 +1127,23 @@
     }
 
     // CRUD actions
-    function saveProduct(){
-      const name = el('#p_name').value.trim(); const sku = el('#p_sku').value.trim(); const cat = el('#p_cat').value; const unit = el('#p_unit').value.trim()||'pcs'; 
-      const stock = Number(el('#p_stock').value||0)
-      const locMain = Number(el('#p_loc_main').value||0)
-      const locProd = Number(el('#p_loc_prod').value||0)
-      const reorder_level = Number(el('#p_reorder_level').value||0)
-      const reorder_qty = Number(el('#p_reorder_qty').value||0)
-      if(!name||!sku){alert('Please provide name and SKU');return}
+    function saveProduct() {
+      const name = el('#p_name').value.trim(); const sku = el('#p_sku').value.trim(); const cat = el('#p_cat').value; const unit = el('#p_unit').value.trim() || 'pcs';
+      const stock = Number(el('#p_stock').value || 0)
+      const locMain = Number(el('#p_loc_main').value || 0)
+      const locProd = Number(el('#p_loc_prod').value || 0)
+      const reorder_level = Number(el('#p_reorder_level').value || 0)
+      const reorder_qty = Number(el('#p_reorder_qty').value || 0)
+      if (!name || !sku) { alert('Please provide name and SKU'); return }
       const id = Date.now()
       const totalStock = stock || (locMain + locProd)
-      const newProduct = {id,name,sku,category:cat,unit,stock:totalStock,locations:{main:locMain,prod:locProd},reorder_level,reorder_qty}
+      const newProduct = { id, name, sku, category: cat, unit, stock: totalStock, locations: { main: locMain, prod: locProd }, reorder_level, reorder_qty }
       store.products.push(newProduct)
 
       // automatically add newly created product to cart (qty:1) as requested
       store.cart = store.cart || []
-      const existing = store.cart.find(c=>c.product_id===id)
-      if(existing){ existing.qty += 1 } else { store.cart.push({product_id:id,qty:1}) }
+      const existing = store.cart.find(c => c.product_id === id)
+      if (existing) { existing.qty += 1 } else { store.cart.push({ product_id: id, qty: 1 }) }
       updateCartCount()
 
       closeModal(); renderProductsAdmin();
@@ -537,166 +1151,166 @@
       openCartSide();
       renderCartSide();
     }
-    function updateProduct(id){
-      const p = store.products.find(x=>x.id===id)
+    function updateProduct(id) {
+      const p = store.products.find(x => x.id === id)
       p.name = el('#p_name').value; p.sku = el('#p_sku').value; p.category = el('#p_cat').value; p.unit = el('#p_unit').value
-      const stock = Number(el('#p_stock').value||0)
-      const locMain = Number(el('#p_loc_main').value||0)
-      const locProd = Number(el('#p_loc_prod').value||0)
-      p.locations = {main:locMain,prod:locProd}
+      const stock = Number(el('#p_stock').value || 0)
+      const locMain = Number(el('#p_loc_main').value || 0)
+      const locProd = Number(el('#p_loc_prod').value || 0)
+      p.locations = { main: locMain, prod: locProd }
       p.stock = stock || (locMain + locProd)
-      p.reorder_level = Number(el('#p_reorder_level').value||0)
-      p.reorder_qty = Number(el('#p_reorder_qty').value||0)
+      p.reorder_level = Number(el('#p_reorder_level').value || 0)
+      p.reorder_qty = Number(el('#p_reorder_qty').value || 0)
       closeModal(); renderProductsAdmin();
     }
 
-    function saveReceipt(){
-      const supplier = el('#r_supplier').value||'Unknown'; const pid = Number(el('#r_product').value); const qty = Number(el('#r_qty').value||0)
-      if(qty<=0){alert('Enter valid qty');return}
-      const product = store.products.find(p=>p.id===pid)
-      const rec = {id:Date.now(),supplier,product_id:pid,qty,status:'Pending',date:new Date().toLocaleString()}
+    function saveReceipt() {
+      const supplier = el('#r_supplier').value || 'Unknown'; const pid = Number(el('#r_product').value); const qty = Number(el('#r_qty').value || 0)
+      if (qty <= 0) { alert('Enter valid qty'); return }
+      const product = store.products.find(p => p.id === pid)
+      const rec = { id: Date.now(), supplier, product_id: pid, qty, status: 'Pending', date: new Date().toLocaleString() }
       store.receipts.push(rec)
-      if(product){ product.stock += qty; product.locations.main = (product.locations.main||0)+qty }
-      store.history.push({type:'receipt',text:`Received ${qty} × ${product ? product.name : 'Product #' + pid}`})
+      if (product) { product.stock += qty; product.locations.main = (product.locations.main || 0) + qty }
+      store.history.push({ type: 'receipt', text: `Received ${qty} × ${product ? product.name : 'Product #' + pid}` })
       closeModal(); renderProductsAdmin(); renderReceipts();
     }
 
-    function saveDelivery(){
-      const cust = el('#d_customer').value||'Customer'; const pid=Number(el('#d_product').value); const qty = Number(el('#d_qty').value||0)
-      if(qty<=0){alert('Enter valid qty');return}
-      const product = store.products.find(p=>p.id===pid)
-      if(product && product.stock<qty){alert('Not enough stock');return}
-      const del = {id:Date.now(),customer:cust,product_id:pid,qty,status:'Pending',date:new Date().toLocaleString()}
+    function saveDelivery() {
+      const cust = el('#d_customer').value || 'Customer'; const pid = Number(el('#d_product').value); const qty = Number(el('#d_qty').value || 0)
+      if (qty <= 0) { alert('Enter valid qty'); return }
+      const product = store.products.find(p => p.id === pid)
+      if (product && product.stock < qty) { alert('Not enough stock'); return }
+      const del = { id: Date.now(), customer: cust, product_id: pid, qty, status: 'Pending', date: new Date().toLocaleString() }
       store.deliveries.push(del)
-      if(product){ product.stock -= qty; product.locations.main = Math.max(0,(product.locations.main||0)-qty) }
-      store.history.push({type:'delivery',text:`Shipped ${qty} × ${product ? product.name : 'Product #' + pid}`})
+      if (product) { product.stock -= qty; product.locations.main = Math.max(0, (product.locations.main || 0) - qty) }
+      store.history.push({ type: 'delivery', text: `Shipped ${qty} × ${product ? product.name : 'Product #' + pid}` })
       closeModal(); renderProductsAdmin(); renderDeliveries();
     }
 
-    function saveAdjustment(pid){
-      const counted = Number(el('#a_count').value||0)
-      const product = store.products.find(p=>p.id===pid)
+    function saveAdjustment(pid) {
+      const counted = Number(el('#a_count').value || 0)
+      const product = store.products.find(p => p.id === pid)
       const diff = counted - product.stock
       product.stock = counted; product.locations.main = counted
-      store.adjustments = store.adjustments||[]
-      store.adjustments.push({id:Date.now(),product_id:pid,counted_qty:counted,difference:diff,date:new Date().toLocaleString()})
-      store.history.push({type:'adjust',text:`Adjusted ${product.name} by ${diff}`})
+      store.adjustments = store.adjustments || []
+      store.adjustments.push({ id: Date.now(), product_id: pid, counted_qty: counted, difference: diff, date: new Date().toLocaleString() })
+      store.history.push({ type: 'adjust', text: `Adjusted ${product.name} by ${diff}` })
       closeModal(); renderProductsAdmin(); renderTransfers();
     }
 
     // Transfers
-    function openTransferModal(){ openModal('transfer') }
-    function saveTransfer(){
-      const from = el('#t_from').value||'Main'
-      const to = el('#t_to').value||'Store'
+    function openTransferModal() { openModal('transfer') }
+    function saveTransfer() {
+      const from = el('#t_from').value || 'Main'
+      const to = el('#t_to').value || 'Store'
       const pid = Number(el('#t_product').value)
-      const qty = Number(el('#t_qty').value||0)
-      if(!pid||qty<=0){ alert('Enter valid product and quantity'); return }
-      const product = store.products.find(p=>p.id===pid)
-      const tr = {id:Date.now(),from,to,product_id:pid,qty,status:'Pending',date:new Date().toLocaleString()}
+      const qty = Number(el('#t_qty').value || 0)
+      if (!pid || qty <= 0) { alert('Enter valid product and quantity'); return }
+      const product = store.products.find(p => p.id === pid)
+      const tr = { id: Date.now(), from, to, product_id: pid, qty, status: 'Pending', date: new Date().toLocaleString() }
       store.transfers.push(tr)
-      store.history.push({type:'transfer',text:`Transfer ${qty} × ${product ? product.name : pid} from ${from} to ${to}`})
+      store.history.push({ type: 'transfer', text: `Transfer ${qty} × ${product ? product.name : pid} from ${from} to ${to}` })
       closeModal(); renderProductsAdmin(); renderTransfers();
     }
 
     // Render receipts/deliveries/transfers
-    function renderReceipts(){
+    function renderReceipts() {
       const view = el('#view-receipts')
-      if(!view) return
+      if (!view) return
       const panel = view.querySelector('.panel')
-      if(!panel) return
+      if (!panel) return
       const list = store.receipts.slice().reverse()
-      if(list.length===0){ panel.innerHTML = '<h3>Receipts</h3><p class="muted">No receipts</p>'; return }
-      panel.innerHTML = '<h3>Receipts</h3>' + list.map(r=>{
+      if (list.length === 0) { panel.innerHTML = '<h3>Receipts</h3><p class="muted">No receipts</p>'; return }
+      panel.innerHTML = '<h3>Receipts</h3>' + list.map(r => {
         // receipts may contain items array or single product_id
-        if(r.items){
-          return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">Receipt #${r.id}</div><div class="muted">Customer: ${r.customer} • Items: ${r.qty} • Status: ${r.status} • ${r.date}</div><div style="margin-top:8px">${r.items.map(it=>`<div>${it.name} — Qty: ${it.qty}</div>`).join('')}</div></div>`
+        if (r.items) {
+          return `<div style="padding:10px;border-bottom:1px solid var(--panel-border)"><div style="font-weight:700">Receipt #${r.id}</div><div class="muted">Customer: ${r.customer} • Items: ${r.qty} • Status: ${r.status} • ${r.date}</div><div style="margin-top:8px">${r.items.map(it => `<div>${it.name} — Qty: ${it.qty}</div>`).join('')}</div></div>`
         }
-        const p = store.products.find(x=>x.id===r.product_id) || {}
-        return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">Supplier: ${r.supplier || r.customer || '—'} • Qty: ${r.qty} • Status: ${r.status} • ${r.date}</div></div>`
+        const p = store.products.find(x => x.id === r.product_id) || {}
+        return `<div style="padding:10px;border-bottom:1px solid var(--panel-border)"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">Supplier: ${r.supplier || r.customer || '—'} • Qty: ${r.qty} • Status: ${r.status} • ${r.date}</div></div>`
       }).join('')
     }
 
-    function renderDeliveries(){
+    function renderDeliveries() {
       const view = el('#view-deliveries')
-      if(!view) return
+      if (!view) return
       const panel = view.querySelector('.panel')
-      if(!panel) return
+      if (!panel) return
       const list = store.deliveries.slice().reverse()
-      if(list.length===0){ panel.innerHTML = '<h3>Deliveries</h3><p class="muted">No deliveries</p>'; return }
-      panel.innerHTML = '<h3>Deliveries</h3>' + list.map(d=>{
-        const p = store.products.find(x=>x.id===d.product_id) || {}
-        return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">Customer: ${d.customer} • Qty: ${d.qty} • Status: ${d.status} • ${d.date}</div><div style="margin-top:8px"><button class='btn ghost' data-id='${d.id}' data-act='del-mark'>Mark Done</button></div></div>`
+      if (list.length === 0) { panel.innerHTML = '<h3>Deliveries</h3><p class="muted">No deliveries</p>'; return }
+      panel.innerHTML = '<h3>Deliveries</h3>' + list.map(d => {
+        const p = store.products.find(x => x.id === d.product_id) || {}
+        return `<div style="padding:10px;border-bottom:1px solid var(--panel-border)"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">Customer: ${d.customer} • Qty: ${d.qty} • Status: ${d.status} • ${d.date}</div><div style="margin-top:8px"><button class='btn ghost' data-id='${d.id}' data-act='del-mark'>Mark Done</button></div></div>`
       }).join('')
-      panel.querySelectorAll('[data-act="del-mark"]').forEach(b=>b.addEventListener('click', (e)=>{
-        const id = Number(e.currentTarget.dataset.id); const del = store.deliveries.find(r=>r.id===id); if(del){ del.status='Done'; renderDeliveries(); updateKPIs() }
+      panel.querySelectorAll('[data-act="del-mark"]').forEach(b => b.addEventListener('click', (e) => {
+        const id = Number(e.currentTarget.dataset.id); const del = store.deliveries.find(r => r.id === id); if (del) { del.status = 'Done'; renderDeliveries(); updateKPIs() }
       }))
     }
 
-    function renderTransfers(){
+    function renderTransfers() {
       const view = el('#view-transfers')
-      if(!view) return
+      if (!view) return
       const panel = view.querySelector('.panel')
-      if(!panel) return
+      if (!panel) return
       const list = store.transfers.slice().reverse()
-      if(list.length===0){ panel.innerHTML = '<h3>Transfers</h3><p class="muted">No transfers</p>'; return }
-      panel.innerHTML = '<h3>Transfers</h3>' + list.map(t=>{
-        const p = store.products.find(x=>x.id===t.product_id) || {}
-        return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">From: ${t.from} • To: ${t.to} • Qty: ${t.qty} • Status: ${t.status} • ${t.date}</div><div style="margin-top:8px"><button class='btn ghost' data-id='${t.id}' data-act='tr-mark'>Mark Done</button></div></div>`
+      if (list.length === 0) { panel.innerHTML = '<h3>Transfers</h3><p class="muted">No transfers</p>'; return }
+      panel.innerHTML = '<h3>Transfers</h3>' + list.map(t => {
+        const p = store.products.find(x => x.id === t.product_id) || {}
+        return `<div style="padding:10px;border-bottom:1px solid var(--panel-border)"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">From: ${t.from} • To: ${t.to} • Qty: ${t.qty} • Status: ${t.status} • ${t.date}</div><div style="margin-top:8px"><button class='btn ghost' data-id='${t.id}' data-act='tr-mark'>Mark Done</button></div></div>`
       }).join('')
-      panel.querySelectorAll('[data-act="tr-mark"]').forEach(b=>b.addEventListener('click', (e)=>{
-        const id = Number(e.currentTarget.dataset.id); const tr = store.transfers.find(r=>r.id===id); if(tr){ tr.status='Done'; renderTransfers(); updateKPIs() }
+      panel.querySelectorAll('[data-act="tr-mark"]').forEach(b => b.addEventListener('click', (e) => {
+        const id = Number(e.currentTarget.dataset.id); const tr = store.transfers.find(r => r.id === id); if (tr) { tr.status = 'Done'; renderTransfers(); updateKPIs() }
       }))
     }
 
     // Profile save (persist to localStorage)
-    function saveProfile(){
+    function saveProfile() {
       const u = store.user
       u.name = el('#u_name_i').value.trim() || u.name
       u.email = el('#u_email_i').value.trim() || u.email
       u.role = el('#u_role_i').value.trim() || u.role
       u.bio = el('#u_bio_i').value.trim() || u.bio
       const fileInput = el('#modalContent').querySelector('#u_avatar_i')
-      if(fileInput && fileInput.dataset && fileInput.dataset.preview){ u.avatar = fileInput.dataset.preview }
+      if (fileInput && fileInput.dataset && fileInput.dataset.preview) { u.avatar = fileInput.dataset.preview }
       u.password_changed = u.password_changed || new Date().toLocaleString()
-      store.history.push({type:'profile',text:`Updated profile`})
+      store.history.push({ type: 'profile', text: `Updated profile` })
       localStorage.setItem('ims_user', JSON.stringify(u))
       closeModal(); renderProfile(); alert('Profile saved (local storage updated)')
     }
 
-    function changePassword(){
-      const oldpw = el('#old_pw').value; const newpw = el('#new_pw').value; const newpw2=el('#new_pw2').value
-      if(!newpw||newpw.length<6){alert('New password must be at least 6 chars');return}
-      if(newpw!==newpw2){alert('Passwords do not match');return}
+    function changePassword() {
+      const oldpw = el('#old_pw').value; const newpw = el('#new_pw').value; const newpw2 = el('#new_pw2').value
+      if (!newpw || newpw.length < 6) { alert('New password must be at least 6 chars'); return }
+      if (newpw !== newpw2) { alert('Passwords do not match'); return }
       store.user.password_changed = new Date().toLocaleString()
-      store.history.push({type:'security',text:'Changed password'})
+      store.history.push({ type: 'security', text: 'Changed password' })
       closeModal(); renderProfile(); alert('Password changed (demo)')
     }
 
     // click outside to close modal
-    el('#modalBack').addEventListener('click', (e)=>{ if(e.target.id==='modalBack') closeModal() })
+    el('#modalBack').addEventListener('click', (e) => { if (e.target.id === 'modalBack') closeModal() })
 
     // search filter
-    el('#search').addEventListener('input', ()=>{
+    el('#search').addEventListener('input', () => {
       const q = el('#search').value.toLowerCase()
       const rows = Array.from(elAll('#productAdminTable tbody tr'))
-      rows.forEach(r=>{ r.style.display = (r.textContent.toLowerCase().includes(q)) ? '' : 'none' })
+      rows.forEach(r => { r.style.display = (r.textContent.toLowerCase().includes(q)) ? '' : 'none' })
     })
 
     // KPI click handlers
-    el('#cardTotal').addEventListener('click',()=>{ switchView('dashboard'); render(); });
-    el('#cardLow').addEventListener('click',()=>{ switchView('dashboard'); showLowStock(); });
-    el('#cardRec').addEventListener('click',()=>{ switchView('receipts'); });
-    el('#cardDel').addEventListener('click',()=>{ switchView('deliveries'); });
-    el('#cardTrans').addEventListener('click',()=>{ switchView('transfers'); });
+    el('#cardTotal').addEventListener('click', () => { switchView('dashboard'); render(); });
+    el('#cardLow').addEventListener('click', () => { switchView('dashboard'); showLowStock(); });
+    el('#cardRec').addEventListener('click', () => { switchView('receipts'); });
+    el('#cardDel').addEventListener('click', () => { switchView('deliveries'); });
+    el('#cardTrans').addEventListener('click', () => { switchView('transfers'); });
 
-    function showLowStock(){
-      const grid = el('#productGrid'); if(!grid) return;
+    function showLowStock() {
+      const grid = el('#productGrid'); if (!grid) return;
       grid.innerHTML = '';
-      const low = store.products.filter(p => Number(p.stock) <= (p.reorder_level||10));
-      if(low.length===0){ grid.innerHTML = '<div class="muted">No low-stock items</div>'; return }
-      low.forEach(p=>{
-        const box = document.createElement('div'); box.className='product-box';
+      const low = store.products.filter(p => Number(p.stock) <= (p.reorder_level || 10));
+      if (low.length === 0) { grid.innerHTML = '<div class="muted">No low-stock items</div>'; return }
+      low.forEach(p => {
+        const box = document.createElement('div'); box.className = 'product-box';
         box.innerHTML = `
           <div style="display:flex;gap:12px;align-items:center">
             <div style="width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,#fff1f0,#fff7f6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#dc2626">${p.sku.split('-')[0]}</div>
@@ -714,74 +1328,74 @@
 
     // CART
     store.cart = store.cart || []
-    function addToCart(pid){
+    function addToCart(pid) {
       const qtyInput = document.getElementById('card_qty')
-      const qty = qtyInput ? Number(qtyInput.value||1) : 1
-      if(qty<=0){ alert('Enter valid quantity'); return }
-      const p = store.products.find(x=>x.id===pid)
-      if(!p){ alert('Product not found'); return }
-      const existing = store.cart.find(c=>c.product_id===pid)
-      if(existing){ existing.qty += qty } else { store.cart.push({product_id:pid,qty}) }
+      const qty = qtyInput ? Number(qtyInput.value || 1) : 1
+      if (qty <= 0) { alert('Enter valid quantity'); return }
+      const p = store.products.find(x => x.id === pid)
+      if (!p) { alert('Product not found'); return }
+      const existing = store.cart.find(c => c.product_id === pid)
+      if (existing) { existing.qty += qty } else { store.cart.push({ product_id: pid, qty }) }
       updateCartCount()
       alert(`${qty} × ${p.name} added to cart`)
       closeModal()
     }
 
-    function updateCartCount(){ const count = store.cart.reduce((s,i)=>s+i.qty,0); const elc = document.getElementById('cartCount'); if(elc) elc.textContent = count }
+    function updateCartCount() { const count = store.cart.reduce((s, i) => s + i.qty, 0); const elc = document.getElementById('cartCount'); if (elc) elc.textContent = count }
 
     // legacy modal cart kept
-    function openCart(){ const modalBack = el('#modalBack'); const modalContent = el('#modalContent'); modalBack.style.display='flex'; renderCart(modalContent) }
-    function renderCart(container){
-      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); return {p,qty:ci.qty} })
-      if(items.length===0){ container.innerHTML = `<h3>Your Cart</h3><p class="muted">Cart is empty</p><div style="text-align:right;margin-top:12px"><button class='btn ghost' onclick='closeModal()'>Close</button></div>`; return }
+    function openCart() { const modalBack = el('#modalBack'); const modalContent = el('#modalContent'); modalBack.style.display = 'flex'; renderCart(modalContent) }
+    function renderCart(container) {
+      const items = store.cart.map(ci => { const p = store.products.find(x => x.id === ci.product_id); return { p, qty: ci.qty } })
+      if (items.length === 0) { container.innerHTML = `<h3>Your Cart</h3><p class="muted">Cart is empty</p><div style="text-align:right;margin-top:12px"><button class='btn ghost' onclick='closeModal()'>Close</button></div>`; return }
       let totalItems = 0
-      const rows = items.map(it=>{ totalItems += it.qty; return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9"><div><div style="font-weight:700">${it.p.name}</div><div class='muted' style='font-size:13px'>SKU: ${it.p.sku}</div></div><div style="display:flex;gap:8px;align-items:center"><div class='muted'>Qty: ${it.qty}</div><button class='btn ghost' onclick='removeFromCart(${it.p.id})'>Remove</button></div></div>` }).join('')
+      const rows = items.map(it => { totalItems += it.qty; return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--panel-border)"><div><div style="font-weight:700">${it.p.name}</div><div class='muted' style='font-size:13px'>SKU: ${it.p.sku}</div></div><div style="display:flex;gap:8px;align-items:center"><div class='muted'>Qty: ${it.qty}</div><button class='btn ghost' onclick='removeFromCart(${it.p.id})'>Remove</button></div></div>` }).join('')
       container.innerHTML = `<h3>Your Cart</h3>${rows}<div style="padding:10px 0;text-align:right"><strong>Total items: ${totalItems}</strong></div><div style='text-align:right;display:flex;gap:8px;justify-content:flex-end'><button class='btn ghost' onclick='closeModal()'>Continue shopping</button><button class='btn' onclick='checkoutCart()'>Pay & Generate Receipt</button></div>`
     }
-    function removeFromCart(pid){ store.cart = store.cart.filter(c=>c.product_id!==pid); updateCartCount(); renderCart(el('#modalContent')) }
-    function checkoutCart(){
-      if(store.cart.length===0){ alert('Cart is empty'); return }
+    function removeFromCart(pid) { store.cart = store.cart.filter(c => c.product_id !== pid); updateCartCount(); renderCart(el('#modalContent')) }
+    function checkoutCart() {
+      if (store.cart.length === 0) { alert('Cart is empty'); return }
       const customer = prompt('Customer name for the order:', 'Walk-in') || 'Walk-in'
       const orderId = Date.now(); const date = new Date().toLocaleString()
-      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); if(p){ p.stock = Math.max(0,p.stock - ci.qty); p.locations.main = Math.max(0,(p.locations.main||0)-ci.qty) } return {product_id:ci.product_id,qty:ci.qty,name:(store.products.find(x=>x.id===ci.product_id)||{}).name} })
-      const del = {id:orderId,customer,items,qty:items.reduce((s,i)=>s+i.qty,0),status:'Done',date}
-      store.deliveries.push(del); store.history.push({type:'order',text:`Order ${orderId} by ${customer} — ${del.qty} items`})
-      el('#modalBack').style.display='flex'; el('#modalContent').innerHTML = `<h3>Receipt — Order ${orderId}</h3><div class="muted">Customer: ${customer} • ${date}</div><div style="margin-top:12px">` + items.map(it=>`<div style="display:flex;justify-content:space-between;padding:6px 0"><div>${it.name}</div><div>Qty: ${it.qty}</div></div>`).join('') + `</div><div style="text-align:right;margin-top:12px"><button class='btn' onclick='printReceipt()'>Print</button><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
+      const items = store.cart.map(ci => { const p = store.products.find(x => x.id === ci.product_id); if (p) { p.stock = Math.max(0, p.stock - ci.qty); p.locations.main = Math.max(0, (p.locations.main || 0) - ci.qty) } return { product_id: ci.product_id, qty: ci.qty, name: (store.products.find(x => x.id === ci.product_id) || {}).name } })
+      const del = { id: orderId, customer, items, qty: items.reduce((s, i) => s + i.qty, 0), status: 'Done', date }
+      store.deliveries.push(del); store.history.push({ type: 'order', text: `Order ${orderId} by ${customer} — ${del.qty} items` })
+      el('#modalBack').style.display = 'flex'; el('#modalContent').innerHTML = `<h3>Receipt — Order ${orderId}</h3><div class="muted">Customer: ${customer} • ${date}</div><div style="margin-top:12px">` + items.map(it => `<div style="display:flex;justify-content:space-between;padding:6px 0"><div>${it.name}</div><div>Qty: ${it.qty}</div></div>`).join('') + `</div><div style="text-align:right;margin-top:12px"><button class='btn' onclick='printReceipt()'>Print</button><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
       store.cart = []
       updateCartCount(); renderProductsAdmin(); renderDeliveries();
     }
 
-    function printReceipt(){ const content = document.getElementById('modalContent').innerHTML; const w = window.open('', '_blank'); w.document.write(`<html><head><title>Receipt</title></head><body>${content}</body></html>`); w.document.close(); w.print() }
+    function printReceipt() { const content = document.getElementById('modalContent').innerHTML; const w = window.open('', '_blank'); w.document.write(`<html><head><title>Receipt</title></head><body>${content}</body></html>`); w.document.close(); w.print() }
 
     // CART SIDE PANEL functions
-    window.openCartSide = function(){ const cartSide = document.getElementById('cartSide'); if(!cartSide) return; cartSide.classList.add('open'); cartSide.setAttribute('aria-hidden','false'); renderCartSide() }
-    window.closeCartSide = function(){ const cartSide = document.getElementById('cartSide'); if(!cartSide) return; cartSide.classList.remove('open'); cartSide.setAttribute('aria-hidden','true') }
+    window.openCartSide = function () { const cartSide = document.getElementById('cartSide'); if (!cartSide) return; cartSide.classList.add('open'); cartSide.setAttribute('aria-hidden', 'false'); renderCartSide() }
+    window.closeCartSide = function () { const cartSide = document.getElementById('cartSide'); if (!cartSide) return; cartSide.classList.remove('open'); cartSide.setAttribute('aria-hidden', 'true') }
 
-    function renderCartSide(){
+    function renderCartSide() {
       const container = el('#cartSideItems'); const footer = el('#cartSideFooter')
-      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); return {p,qty:ci.qty} })
-      if(items.length===0){ container.innerHTML = `<div class="muted">Cart is empty</div>`; footer.innerHTML = `<div style="text-align:right"><button class='btn ghost' onclick='closeCartSide()'>Close</button></div>`; updateCartCount(); return }
-      const rows = items.map(it=>`<div class="cart-item"><div><div style="font-weight:700">${it.p.name}</div><div class='muted' style='font-size:13px'>SKU: ${it.p.sku}</div></div><div style="display:flex;gap:8px;align-items:center"><div class='muted'>${it.qty}</div><button class='btn ghost' onclick='removeFromCartSide(${it.p.id})'>Remove</button></div></div>`).join('')
+      const items = store.cart.map(ci => { const p = store.products.find(x => x.id === ci.product_id); return { p, qty: ci.qty } })
+      if (items.length === 0) { container.innerHTML = `<div class="muted">Cart is empty</div>`; footer.innerHTML = `<div style="text-align:right"><button class='btn ghost' onclick='closeCartSide()'>Close</button></div>`; updateCartCount(); return }
+      const rows = items.map(it => `<div class="cart-item"><div><div style="font-weight:700">${it.p.name}</div><div class='muted' style='font-size:13px'>SKU: ${it.p.sku}</div></div><div style="display:flex;gap:8px;align-items:center"><div class='muted'>${it.qty}</div><button class='btn ghost' onclick='removeFromCartSide(${it.p.id})'>Remove</button></div></div>`).join('')
       container.innerHTML = rows
       footer.innerHTML = `<div style="text-align:right;display:flex;gap:8px;justify-content:flex-end"><button class='btn ghost' onclick='closeCartSide()'>Continue</button><button class='btn' onclick='checkoutCartSide()'>Pay</button></div>`
       updateCartCount()
     }
 
-    function removeFromCartSide(pid){ store.cart = store.cart.filter(c=>c.product_id!==pid); updateCartCount(); renderCartSide(); }
+    function removeFromCartSide(pid) { store.cart = store.cart.filter(c => c.product_id !== pid); updateCartCount(); renderCartSide(); }
 
     // Modified checkout for side panel: create a receipt (payment), store in receipts, and adjust stock
-    function checkoutCartSide(){
-      if(store.cart.length===0){ alert('Cart is empty'); return }
+    function checkoutCartSide() {
+      if (store.cart.length === 0) { alert('Cart is empty'); return }
       const customer = prompt('Customer name for the order:', store.user.name || 'Walk-in') || (store.user.name || 'Walk-in')
       const receiptId = Date.now(); const date = new Date().toLocaleString()
-      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); if(p){ p.stock = Math.max(0,p.stock - ci.qty); p.locations.main = Math.max(0,(p.locations.main||0)-ci.qty) } return {product_id:ci.product_id,qty:ci.qty,name:(store.products.find(x=>x.id===ci.product_id)||{}).name} })
-      const totalQty = items.reduce((s,i)=>s+i.qty,0)
-      const receipt = {id:receiptId,customer,items,qty:totalQty,status:'Paid',date}
+      const items = store.cart.map(ci => { const p = store.products.find(x => x.id === ci.product_id); if (p) { p.stock = Math.max(0, p.stock - ci.qty); p.locations.main = Math.max(0, (p.locations.main || 0) - ci.qty) } return { product_id: ci.product_id, qty: ci.qty, name: (store.products.find(x => x.id === ci.product_id) || {}).name } })
+      const totalQty = items.reduce((s, i) => s + i.qty, 0)
+      const receipt = { id: receiptId, customer, items, qty: totalQty, status: 'Paid', date }
       store.receipts.push(receipt)
-      store.history.push({type:'receipt',text:`Payment Receipt ${receiptId} by ${customer} — ${totalQty} items`})
+      store.history.push({ type: 'receipt', text: `Payment Receipt ${receiptId} by ${customer} — ${totalQty} items` })
 
       // show receipt modal
-      el('#modalBack').style.display='flex'; el('#modalContent').innerHTML = `<h3>Receipt — ${receiptId}</h3><div class="muted">Customer: ${customer} • ${date}</div><div style="margin-top:12px">` + items.map(it=>`<div style="display:flex;justify-content:space-between;padding:6px 0"><div>${it.name}</div><div>Qty: ${it.qty}</div></div>`).join('') + `</div><div style="text-align:right;margin-top:12px"><button class='btn' onclick='printReceipt()'>Print</button><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
+      el('#modalBack').style.display = 'flex'; el('#modalContent').innerHTML = `<h3>Receipt — ${receiptId}</h3><div class="muted">Customer: ${customer} • ${date}</div><div style="margin-top:12px">` + items.map(it => `<div style="display:flex;justify-content:space-between;padding:6px 0"><div>${it.name}</div><div>Qty: ${it.qty}</div></div>`).join('') + `</div><div style="text-align:right;margin-top:12px"><button class='btn' onclick='printReceipt()'>Print</button><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
 
       // clear cart and update views
       store.cart = []
@@ -789,8 +1403,8 @@
     }
 
     // initial wiring & render
-    document.getElementById('btnCart').addEventListener('click', ()=>{ window.openCartSide() })
-    document.getElementById('hamburgerBtn').addEventListener('click', ()=>{ window.toggleSidebar() })
+    document.getElementById('btnCart').addEventListener('click', () => { window.openCartSide() })
+    document.getElementById('hamburgerBtn').addEventListener('click', () => { window.toggleSidebar() })
 
     updateCartCount();
     renderProductsAdmin();
@@ -798,4 +1412,5 @@
 
   </script>
 </body>
+
 </html>
