@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>StockMaster — Login / Sign up</title>
+  <style>
+    :root{
+      --bg:#f6f7f8; --left-blue:#1268ff; --left-blue-2:#0b5bff;
+      --card:#fff; --muted:#6b7280; --pill-bg:#eeedf0; --btn-dark:#05030a;
+      --radius:14px; --shadow:0 6px 18px rgba(12,13,14,0.06);
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:#111}
+    .wrap{display:flex;min-height:100vh;align-items:stretch}
+
+    /* Left */
+    .left {
+      width:48%;
+      min-width:520px;
+      background: linear-gradient(180deg,var(--left-blue) 0%, var(--left-blue-2) 100%);
+      color:#fff;
+      padding:80px 88px;
+      display:flex;
+      flex-direction:column;
+      gap:28px;
+      align-items:flex-start;
+      justify-content:flex-start;
+    }
+    .brand{font-weight:600; font-size:16px}
+    .lead{
+      max-width:520px;
+      font-size:22px;
+      line-height:1.6;
+      margin-top:18px;
+      font-weight:500;
+    }
+    .photo-wrap{
+      margin-top:26px;
+      width:460px;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow: 0 30px 60px rgba(2,9,109,0.12);
+      border:6px solid rgba(255,255,255,0.03);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
+    .photo-wrap img{
+      width:100%;
+      height:400px; /* match screenshot large image */
+      object-fit:cover;
+      display:block;
+      border-radius:12px;
+      transform: translateZ(0);
+    }
+
+    /* Right */
+    .right {
+      width:52%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px 72px;
+    }
+    .auth-card {
+      width:460px;
+      background:var(--card);
+      border-radius:14px;
+      box-shadow: var(--shadow);
+      padding:18px;
+      border:1px solid rgba(20,20,20,0.03);
+    }
+    .tabs { display:flex; gap:12px; margin-bottom:14px; padding:8px; background:transparent; }
+    .tab {
+      flex:1; text-align:center; padding:10px 12px; border-radius:28px; font-weight:600; cursor:pointer;
+      background:var(--pill-bg); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.02); user-select:none;
+    }
+    .tab.active { background: linear-gradient(90deg,#fff,#fafafa); box-shadow:none; }
+    .form-inner { padding:12px 6px 6px 6px; border-radius:10px; }
+    h3{margin:4px 0 0 0; font-size:20px}
+    .muted{color:var(--muted); margin-top:6px; font-size:14px}
+    label{display:block; font-weight:600; margin-top:16px; font-size:14px}
+    input[type="email"],input[type="password"],input[type="text"],input[type="tel"]{
+      width:100%; padding:12px 14px; margin-top:8px; border-radius:10px; border:1px solid #f0f0f2;
+      background:#f5f6f7; font-size:14px;
+    }
+    .forgot{margin-top:12px; color:var(--muted); font-weight:700; cursor:pointer}
+    .btn {
+      margin-top:16px; width:100%; padding:12px 16px; border-radius:10px; border:none;
+      background:var(--btn-dark); color:#fff; font-weight:700; cursor:pointer; box-shadow: 0 8px 20px rgba(6,6,10,0.35);
+    }
+    .center-small{margin-top:12px; text-align:center; color:var(--muted); font-size:13px}
+
+    /* OTP modal */
+    .overlay{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.45); z-index:60;}
+    .overlay.active{display:flex}
+    .modal{ width:460px; background:#fff; border-radius:12px; padding:16px; box-shadow: 0 30px 80px rgba(0,0,0,0.28); }
+    .small-note{ color:var(--muted); font-size:13px; margin-top:8px }
+    .demo-otp{ margin-top:12px; background:#f7f8fb; border-radius:8px; padding:10px; font-family:monospace; }
+
+    @media (max-width:1100px){
+      .left{display:none}
+      .right{width:100%; padding:28px}
+      .auth-card{width:520px; max-width:100%}
+    }
+    @media (max-width:720px){
+      .auth-card{padding:12px}
+      input{padding:10px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="left" aria-hidden="true">
+      <div class="brand">StockMaster</div>
+      <div class="lead">
+        Streamline your inventory management with real-time tracking, automated stock updates, and comprehensive reporting.
+      </div>
+
+      <div class="photo-wrap" aria-hidden="true">
+        <img src="/mnt/data/85b3d51d-9bee-473c-99ea-c64209f4ea24.png"
+             alt="warehouse"
+             loading="eager" decoding="sync" width="460" height="720">
+      </div>
+    </section>
+
+    <section class="right" aria-label="Authentication area">
+      <div class="auth-card" role="region" aria-labelledby="auth-heading">
+        <div class="tabs" role="tablist">
+          <div class="tab active" id="tab-login" role="tab" aria-selected="true">Login</div>
+          <div class="tab" id="tab-signup" role="tab" aria-selected="false">Sign Up</div>
+        </div>
+
+        <div class="form-inner" id="login-section">
+          <h3 id="auth-heading">Welcome back</h3>
+          <p class="muted">Enter your credentials to access your account</p>
+
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" placeholder="your@email.com" autocomplete="username">
+
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+
+          <div class="forgot" id="forgot-btn">Forgot Password?</div>
+
+          <button class="btn" id="login-btn">Login</button>
+          <div class="center-small" id="login-msg" aria-live="polite"></div>
+        </div>
+
+        <div class="form-inner" id="signup-section" style="display:none;">
+          <h3>Create an account</h3>
+          <p class="muted">Sign up to start managing your inventory</p>
+
+          <label for="signup-name">Full Name</label>
+          <input id="signup-name" type="text" placeholder="John Doe" autocomplete="name">
+
+          <label for="signup-email">Email</label>
+          <input id="signup-email" type="email" placeholder="your@email.com" autocomplete="email">
+
+          <label for="signup-password">Password</label>
+          <input id="signup-password" type="password" placeholder="••••••••" autocomplete="new-password">
+
+          <button class="btn" id="signup-btn">Create Account</button>
+          <div class="center-small" id="signup-msg" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- OTP Modal -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Reset password dialog">
+      <h3>Reset password</h3>
+      <p class="small-note">Enter the email for your account. We'll send a one-time code (OTP) to reset your password.</p>
+
+      <div id="step-email">
+        <label for="reset-email">Email</label>
+        <input id="reset-email" type="email" placeholder="your@email.com">
+        <button class="btn" id="send-otp-btn">Send OTP</button>
+      </div>
+
+      <div id="step-otp" style="display:none;">
+        <label for="otp-input">Enter OTP</label>
+        <input id="otp-input" type="tel" maxlength="6" placeholder="6-digit code">
+        <div class="small-note">OTP expires in <span id="otp-timer">--</span> seconds</div>
+
+        <label for="new-password">New password</label>
+        <input id="new-password" type="password" placeholder="New password">
+
+        <button class="btn" id="verify-otp-btn">Verify & Reset Password</button>
+      </div>
+
+      <div id="otp-demo" style="display:none;">
+        <p class="small-note">Demo-only: OTP shown below (real app would send email/SMS).</p>
+        <div class="demo-otp" id="demo-otp">------</div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button style="flex:1;padding:10px;border-radius:8px;background:#eee;border:none;cursor:pointer" id="close-modal">Close</button>
+      </div>
+
+      <div class="center-small" id="modal-msg" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+
+    /* Tabs */
+    const tabLogin = $('#tab-login'), tabSignup = $('#tab-signup');
+    const loginSect = $('#login-section'), signupSect = $('#signup-section');
+
+    tabLogin.addEventListener('click', () => {
+      tabLogin.classList.add('active'); 
+      tabSignup.classList.remove('active');
+      loginSect.style.display = ''; 
+      signupSect.style.display = 'none';
+      tabLogin.setAttribute('aria-selected','true'); 
+      tabSignup.setAttribute('aria-selected','false');
+    });
+
+    tabSignup.addEventListener('click', () => {
+      tabSignup.classList.add('active'); 
+      tabLogin.classList.remove('active');
+      signupSect.style.display = ''; 
+      loginSect.style.display = 'none';
+      tabSignup.setAttribute('aria-selected','true'); 
+      tabLogin.setAttribute('aria-selected','false');
+    });
+
+    /* Users localStorage */
+    function getUsers(){ try{ return JSON.parse(localStorage.getItem('demo_users')||'{}'); }catch(e){ return {}; } }
+    function saveUsers(u){ try{ localStorage.setItem('demo_users', JSON.stringify(u)); }catch(e){} }
+    const hash = s => btoa(String(s||''));
+
+    /* Signup */
+    $('#signup-btn').addEventListener('click', () => {
+      const name = $('#signup-name').value.trim();
+      const email = $('#signup-email').value.trim().toLowerCase();
+      const pw = $('#signup-password').value;
+      const msg = $('#signup-msg'); msg.textContent = '';
+      if(!name || !email || !pw){ msg.textContent = 'Please fill all fields.'; return; }
+      const users = getUsers();
+      if(users[email]){ msg.textContent = 'An account already exists with that email.'; return; }
+      users[email] = { name, passwordHash: hash(pw) };
+      saveUsers(users);
+      msg.textContent = 'Account created. Redirecting to Login...';
+      setTimeout(()=>{ msg.textContent=''; tabLogin.click(); }, 900);
+    });
+
+    /* Login */
+    $('#login-btn').addEventListener('click', () => {
+      const email = $('#login-email').value.trim().toLowerCase();
+      const pw = $('#login-password').value;
+      const msg = $('#login-msg'); msg.textContent = '';
+      if(!email || !pw){ msg.textContent = 'Enter email and password.'; return; }
+      const users = getUsers();
+      if(!users[email] || users[email].passwordHash !== hash(pw)){ msg.textContent = 'Invalid credentials.'; return; }
+
+      msg.textContent = 'Logged in — redirecting...';
+      setTimeout(() => {
+        window.location.href = "stock.html";   // ✅ redirect added here
+      }, 500);
+    });
+
+    /* OTP + Modal */
+    const overlay = $('#overlay'), forgotBtn = $('#forgot-btn'), closeModal = $('#close-modal');
+    const sendOtpBtn = $('#send-otp-btn'), verifyOtpBtn = $('#verify-otp-btn');
+    const stepEmail = $('#step-email'), stepOtp = $('#step-otp'), otpDemo = $('#otp-demo');
+    const demoOtpBox = $('#demo-otp'), modalMsg = $('#modal-msg'), otpTimerEl = $('#otp-timer');
+
+    let otpData = null, otpInterval = null;
+
+    forgotBtn.addEventListener('click', () => {
+      overlay.classList.add('active'); overlay.setAttribute('aria-hidden','false');
+      stepEmail.style.display = ''; stepOtp.style.display = 'none'; otpDemo.style.display = 'none';
+      modalMsg.textContent = '';
+      $('#reset-email').value = $('#login-email').value.trim() || '';
+    });
+
+    closeModal.addEventListener('click', closeOverlay);
+    overlay.addEventListener('click', e => { if(e.target === overlay) closeOverlay(); });
+
+    function closeOverlay(){ overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true'); clearOtp(); }
+    function clearOtp(){ if(otpInterval) { clearInterval(otpInterval); otpInterval = null; } otpData = null; otpTimerEl.textContent='--'; }
+
+    sendOtpBtn.addEventListener('click', () => {
+      const email = $('#reset-email').value.trim().toLowerCase();
+      modalMsg.textContent = '';
+      if(!email){ modalMsg.textContent = 'Please enter an email.'; return; }
+      const users = getUsers(); if(!users[email]){ modalMsg.textContent = 'No account found with that email.'; return; }
+
+      const code = String(100000 + Math.floor(Math.random() * 900000));
+      const ttl = 180;
+      otpData = { email, code, expires: Date.now() + ttl*1000 };
+
+      stepEmail.style.display = 'none';
+      stepOtp.style.display = '';
+      otpDemo.style.display = '';
+      demoOtpBox.textContent = code;
+      modalMsg.textContent = 'OTP sent (demo).';
+
+      let remaining = ttl;
+      otpTimerEl.textContent = remaining;
+      if(otpInterval) clearInterval(otpInterval);
+      otpInterval = setInterval(() => {
+        remaining = Math.max(0, Math.ceil((otpData.expires - Date.now())/1000));
+        otpTimerEl.textContent = remaining;
+        if(remaining <= 0){ clearInterval(otpInterval); otpInterval = null; modalMsg.textContent = 'OTP expired. Request a new one.'; }
+      }, 1000);
+    });
+
+    verifyOtpBtn.addEventListener('click', () => {
+      if(!otpData){ modalMsg.textContent = 'No OTP requested.'; return; }
+      const entered = $('#otp-input').value.trim();
+      const newPw = $('#new-password').value;
+      if(!entered || !newPw){ modalMsg.textContent = 'Enter OTP and new password.'; return; }
+      if(Date.now() > otpData.expires){ modalMsg.textContent = 'OTP expired.'; return; }
+      if(entered !== otpData.code){ modalMsg.textContent = 'Invalid OTP.'; return; }
+      const users = getUsers();
+      if(!users[otpData.email]){ modalMsg.textContent = 'Account missing.'; return; }
+      users[otpData.email].passwordHash = hash(newPw); saveUsers(users);
+      modalMsg.textContent = 'Password reset successful. You may log in now.';
+      clearOtp();
+      setTimeout(()=>{ closeOverlay(); $('#login-email').value = otpData.email; $('#login-password').value = ''; tabLogin.click(); }, 900);
+    });
+
+    /* Enter key support */
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        if(document.activeElement === $('#login-password') || document.activeElement === $('#login-email')) $('#login-btn').click();
+        else if([$('#signup-name'), $('#signup-email'), $('#signup-password')].includes(document.activeElement)) $('#signup-btn').click();
+      }
+    });
+
+    /* Create demo user */
+    (function createDemo(){
+      const users = getUsers();
+      if(!users['demo@company.com']){
+        users['demo@company.com'] = { name: 'Demo User', passwordHash: hash('demo1234') };
+        saveUsers(users);
+      }
+    })();
+  </script>
+</body>
+</html>
