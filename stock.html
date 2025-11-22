@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IMS — Simple Frontend</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
+    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    body{margin:0;background:var(--bg);color:#111}
+    .app{display:flex;min-height:100vh}
+    /* Sidebar */
+    .sidebar{width:250px;background:linear-gradient(180deg,#0f172a,#0b1220);color:#fff;padding:22px 16px}
+    .brand{font-weight:700;font-size:18px;margin-bottom:18px}
+    .nav{margin-top:12px}
+    .nav a{display:flex;align-items:center;padding:10px 12px;border-radius:8px;color:#dbeafe;text-decoration:none;margin-bottom:6px}
+    .nav a.active{background:rgba(255,255,255,0.06)}
+    .nav a:hover{background:rgba(255,255,255,0.03)}
+    /* Main */
+    .main{flex:1;padding:18px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .search{display:flex;gap:8px;align-items:center}
+    .search input{padding:8px 12px;border-radius:10px;border:1px solid #e6eef8;min-width:220px}
+    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .card h4{margin:0;font-size:13px;color:var(--muted)}
+    .card p{margin:8px 0 0;font-weight:700;font-size:18px}
+    /* Content areas */
+    .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #f1f5f9}
+    th{font-size:13px;color:var(--muted)}
+    .toolbar{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(37,99,235,0.12)}
+    .floating{position:fixed;right:28px;bottom:28px;background:var(--accent);color:#fff;padding:14px;border-radius:50%;font-weight:700;box-shadow:0 10px 30px rgba(2,6,23,0.2);cursor:pointer}
+    .filters{display:flex;gap:8px;align-items:center}
+    /* modal */
+    .modal-back{position:fixed;inset:0;background:rgba(2,6,23,0.4);display:none;align-items:center;justify-content:center}
+    .modal{background:var(--card);padding:18px;border-radius:12px;min-width:360px}
+    .form-row{display:flex;gap:8px;margin-bottom:8px}
+    .form-row input,.form-row select{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8}
+    .muted{color:var(--muted);font-size:13px}
+    /* responsive */
+    @media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.app{flex-direction:column}.main{padding:12px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">StockMaster — IMS</div>
+      <div class="muted">Inventory Management System (Demo)</div>
+      <nav class="nav">
+        <a class="active">Dashboard</a>
+        <a>Products</a>
+        <a>Receipts</a>
+        <a>Delivery Orders</a>
+        <a>Transfers</a>
+        <a>Adjustments</a>
+        <a>Settings</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="search">
+          <input id="search" placeholder="Search SKU, product name..." />
+          <div class="muted">Role: Inventory Manager</div>
+        </div>
+        <div class="toolbar">
+          <button class="btn ghost" onclick="openModal('product')">+ Product</button>
+          <button class="btn ghost" onclick="openModal('receipt')">+ Receipt</button>
+          <button class="btn" onclick="openModal('delivery')">+ Delivery</button>
+        </div>
+      </div>
+
+      <section class="cards">
+        <div class="card"><h4>Total Products</h4><p id="kpiproducts">0</p></div>
+        <div class="card"><h4>Low Stock</h4><p id="kpilow">0</p></div>
+        <div class="card"><h4>Pending Receipts</h4><p id="kpipendrec">0</p></div>
+        <div class="card"><h4>Pending Deliveries</h4><p id="kpipenddel">0</p></div>
+        <div class="card"><h4>Transfers</h4><p id="kpitrans">0</p></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>Products</h3>
+          <div class="filters">
+            <select id="filterLocation"><option value="all">All locations</option><option value="main">Main Warehouse</option><option value="prod">Production Rack</option></select>
+            <select id="filterCategory"><option value="all">All categories</option><option value="raw">Raw Material</option><option value="finished">Finished Goods</option></select>
+          </div>
+        </div>
+        <table id="productTable">
+          <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Stock</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <div class="floating" title="Quick add" onclick="openModal('quick')">+</div>
+
+    </main>
+  </div>
+
+  <!-- modal backdrop -->
+  <div id="modalBack" class="modal-back">
+    <div class="modal" id="modalContent">
+      <!-- dynamic content inserted by JS -->
+    </div>
+  </div>
+
+  <script>
+    // Simple in-memory data store (demo)
+    const store = {
+      products: [
+        {id:1,name:'Steel Rods',sku:'ST-001',category:'raw',unit:'kg',stock:127,locations:{main:127,prod:0}},
+        {id:2,name:'Wooden Chair',sku:'CH-101',category:'finished',unit:'pcs',stock:43,locations:{main:10,prod:33}},
+        {id:3,name:'Nails Pack',sku:'NA-09',category:'raw',unit:'box',stock:8,locations:{main:8,prod:0}},
+      ],
+      receipts:[],deliveries:[],transfers:[],history:[]
+    }
+
+    // Utility
+    const el = (s)=>document.querySelector(s)
+    const elAll = (s)=>document.querySelectorAll(s)
+
+    // Render products table & KPIs
+    function render(){
+      const tbody = el('#productTable tbody')
+      tbody.innerHTML=''
+      store.products.forEach(p=>{
+        const tr = document.createElement('tr')
+        tr.innerHTML=`<td>${p.name}</td><td>${p.sku}</td><td>${p.category}</td><td>${p.unit}</td><td>${p.stock}</td>
+        <td><button class='btn ghost' onclick='openModal("editProduct",${p.id})'>Edit</button> <button class='btn ghost' onclick='openModal("adjust",${p.id})'>Adjust</button></td>`
+        tbody.appendChild(tr)
+      })
+      updateKPIs()
+    }
+
+    function updateKPIs(){
+      el('#kpiproducts').textContent = store.products.length
+      el('#kpilow').textContent = store.products.filter(p=>p.stock<=10).length
+      el('#kpipendrec').textContent = store.receipts.filter(r=>r.status!=='Done').length
+      el('#kpipenddel').textContent = store.deliveries.filter(d=>d.status!=='Done').length
+      el('#kpitrans').textContent = store.transfers.length
+    }
+
+    // Modal manager
+    function openModal(type,id){
+      const modalBack = el('#modalBack')
+      const modalContent = el('#modalContent')
+      modalBack.style.display='flex'
+      let html = ''
+      if(type==='product'){
+        html = ` <h3>Add Product</h3>
+          <div class='form-row'><input id='p_name' placeholder='Name' /><input id='p_sku' placeholder='SKU' /></div>
+          <div class='form-row'><select id='p_cat'><option value='raw'>Raw Material</option><option value='finished'>Finished Goods</option></select><input id='p_unit' placeholder='Unit (kg/pcs/box)' /></div>
+          <div class='form-row'><input id='p_stock' type='number' placeholder='Initial stock (optional)' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveProduct()'>Save</button></div>`
+      } else if(type==='editProduct'){
+        const p = store.products.find(x=>x.id===id)
+        html = `<h3>Edit Product</h3>
+          <div class='form-row'><input id='p_name' value='${p.name}' placeholder='Name' /><input id='p_sku' value='${p.sku}'/></div>
+          <div class='form-row'><select id='p_cat'><option value='raw' ${p.category==='raw'?'selected':''}>Raw Material</option><option value='finished' ${p.category==='finished'?'selected':''}>Finished Goods</option></select><input id='p_unit' value='${p.unit}' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='updateProduct(${p.id})'>Update</button></div>`
+      } else if(type==='receipt'){
+        html = `<h3>Create Receipt</h3>
+          <div class='form-row'><input id='r_supplier' placeholder='Supplier name' /></div>
+          <div class='form-row'><select id='r_product'>${store.products.map(p=>`<option value='${p.id}'>${p.name} — ${p.sku}</option>`).join('')}</select><input id='r_qty' type='number' placeholder='Qty' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveReceipt()'>Receive</button></div>`
+      } else if(type==='delivery'){
+        html = `<h3>Create Delivery</h3>
+          <div class='form-row'><input id='d_customer' placeholder='Customer name' /></div>
+          <div class='form-row'><select id='d_product'>${store.products.map(p=>`<option value='${p.id}'>${p.name} — ${p.sku} (stock:${p.stock})</option>`).join('')}</select><input id='d_qty' type='number' placeholder='Qty' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveDelivery()'>Dispatch</button></div>`
+      } else if(type==='adjust'){
+        const p = store.products.find(x=>x.id===id)
+        html = `<h3>Adjust Stock — ${p.name}</h3>
+          <div class='form-row'><input id='a_count' type='number' value='${p.stock}' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveAdjustment(${p.id})'>Adjust</button></div>`
+      } else if(type==='quick'){
+        html = `<h3>Quick Actions</h3>
+          <div class='form-row'><button class='btn' onclick='openModal(\'receipt\')'>Receive Goods</button><button class='btn' onclick='openModal(\'delivery\')'>Ship Goods</button></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
+      }
+      modalContent.innerHTML = html
+    }
+    function closeModal(){el('#modalBack').style.display='none'}
+
+    // CRUD actions
+    function saveProduct(){
+      const name = el('#p_name').value.trim(); const sku = el('#p_sku').value.trim(); const cat = el('#p_cat').value; const unit = el('#p_unit').value.trim()||'pcs'; const stock = Number(el('#p_stock').value||0)
+      if(!name||!sku){alert('Please provide name and SKU');return}
+      const id = Date.now()
+      store.products.push({id,name,sku,category:cat,unit,stock,locations:{main:stock,prod:0}})
+      closeModal(); render()
+    }
+    function updateProduct(id){
+      const p = store.products.find(x=>x.id===id)
+      p.name = el('#p_name').value; p.sku = el('#p_sku').value; p.category = el('#p_cat').value; p.unit = el('#p_unit').value
+      closeModal(); render()
+    }
+
+    function saveReceipt(){
+      const supplier = el('#r_supplier').value||'Unknown'; const pid = Number(el('#r_product').value); const qty = Number(el('#r_qty').value||0)
+      if(qty<=0){alert('Enter valid qty');return}
+      const product = store.products.find(p=>p.id===pid)
+      // create receipt and mark Done immediately for demo
+      const rec = {id:Date.now(),supplier,product_id:pid,qty,status:'Done'}
+      store.receipts.push(rec)
+      product.stock += qty; product.locations.main = (product.locations.main||0)+qty
+      store.history.push({type:'receipt',product:product.name,qty})
+      closeModal(); render()
+    }
+
+    function saveDelivery(){
+      const cust = el('#d_customer').value||'Customer'; const pid=Number(el('#d_product').value); const qty = Number(el('#d_qty').value||0)
+      if(qty<=0){alert('Enter valid qty');return}
+      const product = store.products.find(p=>p.id===pid)
+      if(product.stock<qty){alert('Not enough stock');return}
+      const del = {id:Date.now(),customer:cust,product_id:pid,qty,status:'Done'}
+      store.deliveries.push(del)
+      product.stock -= qty; product.locations.main = Math.max(0,(product.locations.main||0)-qty)
+      store.history.push({type:'delivery',product:product.name,qty})
+      closeModal(); render()
+    }
+
+    function saveAdjustment(pid){
+      const counted = Number(el('#a_count').value||0)
+      const product = store.products.find(p=>p.id===pid)
+      const diff = counted - product.stock
+      product.stock = counted; product.locations.main = counted
+      store.adjustments = store.adjustments||[]
+      store.adjustments.push({id:Date.now(),product_id:pid,counted_qty:counted,difference:diff})
+      store.history.push({type:'adjust',product:product.name,qty:diff})
+      closeModal(); render()
+    }
+
+    // click outside to close modal
+    el('#modalBack').addEventListener('click', (e)=>{ if(e.target.id==='modalBack') closeModal() })
+
+    // search
+    el('#search').addEventListener('input', ()=>{
+      const q = el('#search').value.toLowerCase()
+      const rows = Array.from(elAll('#productTable tbody tr'))
+      rows.forEach(r=>{ r.style.display = (r.textContent.toLowerCase().includes(q)) ? '' : 'none' })
+    })
+
+    // initial render
+    render()
+  </script>
+</body>
+</html>
