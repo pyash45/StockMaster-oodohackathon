@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>IMS — Simple Frontend</title>
+  <title>IMS — Dashboard & Profile (Demo)</title>
   <style>
     :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
     *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
@@ -13,7 +13,7 @@
     .sidebar{width:250px;background:linear-gradient(180deg,#0f172a,#0b1220);color:#fff;padding:22px 16px}
     .brand{font-weight:700;font-size:18px;margin-bottom:18px}
     .nav{margin-top:12px}
-    .nav a{display:flex;align-items:center;padding:10px 12px;border-radius:8px;color:#dbeafe;text-decoration:none;margin-bottom:6px}
+    .nav a{display:flex;align-items:center;padding:10px 12px;border-radius:8px;color:#dbeafe;text-decoration:none;margin-bottom:6px;cursor:pointer}
     .nav a.active{background:rgba(255,255,255,0.06)}
     .nav a:hover{background:rgba(255,255,255,0.03)}
     /* Main */
@@ -40,10 +40,18 @@
     .modal-back{position:fixed;inset:0;background:rgba(2,6,23,0.4);display:none;align-items:center;justify-content:center}
     .modal{background:var(--card);padding:18px;border-radius:12px;min-width:360px}
     .form-row{display:flex;gap:8px;margin-bottom:8px}
-    .form-row input,.form-row select{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8}
+    .form-row input,.form-row select, .form-row textarea{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8}
     .muted{color:var(--muted);font-size:13px}
+    /* profile */
+    .profile{display:grid;grid-template-columns:260px 1fr;gap:14px}
+    .profile-card{padding:18px;border-radius:12px;background:var(--card);box-shadow:0 6px 18px rgba(15,23,42,0.04);text-align:center}
+    .avatar{width:120px;height:120px;border-radius:12px;background:linear-gradient(135deg,#e6eef8,#dbeafe);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:34px;color:var(--accent);margin-bottom:8px}
+    .profile-details{padding:18px;background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+    .field{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+    .field label{width:120px;color:var(--muted)}
+    .activity{max-height:220px;overflow:auto}
     /* responsive */
-    @media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.app{flex-direction:column}.main{padding:12px}}
+    @media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.app{flex-direction:column}.main{padding:12px}.profile{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -52,13 +60,13 @@
       <div class="brand">StockMaster — IMS</div>
       <div class="muted">Inventory Management System (Demo)</div>
       <nav class="nav">
-        <a class="active">Dashboard</a>
-        <a>Products</a>
-        <a>Receipts</a>
-        <a>Delivery Orders</a>
-        <a>Transfers</a>
-        <a>Adjustments</a>
-        <a>Settings</a>
+        <a data-view="dashboard" class="active">Dashboard</a>
+        <a data-view="products">Products</a>
+        <a data-view="receipts">Receipts</a>
+        <a data-view="deliveries">Delivery Orders</a>
+        <a data-view="transfers">Transfers</a>
+        <a data-view="profile">Profile</a>
+        <a data-view="settings">Settings</a>
       </nav>
     </aside>
 
@@ -75,27 +83,72 @@
         </div>
       </div>
 
-      <section class="cards">
-        <div class="card"><h4>Total Products</h4><p id="kpiproducts">0</p></div>
-        <div class="card"><h4>Low Stock</h4><p id="kpilow">0</p></div>
-        <div class="card"><h4>Pending Receipts</h4><p id="kpipendrec">0</p></div>
-        <div class="card"><h4>Pending Deliveries</h4><p id="kpipenddel">0</p></div>
-        <div class="card"><h4>Transfers</h4><p id="kpitrans">0</p></div>
+      <!-- Views container -->
+      <section id="view-dashboard" class="view">
+        <section class="cards">
+          <div class="card"><h4>Total Products</h4><p id="kpiproducts">0</p></div>
+          <div class="card"><h4>Low Stock</h4><p id="kpilow">0</p></div>
+          <div class="card"><h4>Pending Receipts</h4><p id="kpipendrec">0</p></div>
+          <div class="card"><h4>Pending Deliveries</h4><p id="kpipenddel">0</p></div>
+          <div class="card"><h4>Transfers</h4><p id="kpitrans">0</p></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Products</h3>
+            <div class="filters">
+              <select id="filterLocation"><option value="all">All locations</option><option value="main">Main Warehouse</option><option value="prod">Production Rack</option></select>
+              <select id="filterCategory"><option value="all">All categories</option><option value="raw">Raw Material</option><option value="finished">Finished Goods</option></select>
+            </div>
+          </div>
+          <table id="productTable">
+            <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Stock</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
       </section>
 
-      <section class="panel">
-        <div class="panel-header">
-          <h3>Products</h3>
-          <div class="filters">
-            <select id="filterLocation"><option value="all">All locations</option><option value="main">Main Warehouse</option><option value="prod">Production Rack</option></select>
-            <select id="filterCategory"><option value="all">All categories</option><option value="raw">Raw Material</option><option value="finished">Finished Goods</option></select>
+      <!-- Profile view -->
+      <section id="view-profile" class="view" style="display:none">
+        <div class="profile">
+          <div class="profile-card">
+            <div id="avatar" class="avatar">RK</div>
+            <div style="font-weight:700;font-size:18px;margin-top:6px" id="u_name">Rohit Koli</div>
+            <div class="muted" id="u_role">Inventory Manager</div>
+            <div style="margin-top:12px"><button class="btn ghost" onclick="openModal('editProfile')">Edit Profile</button></div>
+            <hr style="margin:14px 0;border:none;border-top:1px solid #f1f5f9" />
+            <div style="text-align:left">
+              <div class="muted" style="font-size:13px;margin-bottom:8px">Quick Actions</div>
+              <button class="btn" onclick="openModal('receipt')">Receive Goods</button>
+              <button class="btn ghost" onclick="openModal('delivery')">Ship Goods</button>
+            </div>
+          </div>
+
+          <div class="profile-details">
+            <h3>Profile Details</h3>
+            <div class="field"><label>Name</label><div id="u_name_f" class="muted">Rohit Koli</div></div>
+            <div class="field"><label>Email</label><div id="u_email_f" class="muted">rohit@example.com</div></div>
+            <div class="field"><label>Role</label><div id="u_role_f" class="muted">Inventory Manager</div></div>
+            <div class="field"><label>Bio</label><div id="u_bio_f" class="muted">Keeps the shelves tidy and the records tidy-er.</div></div>
+
+            <h4 style="margin-top:12px">Recent Activity</h4>
+            <div class="activity" id="activityList">
+              <!-- history items -->
+            </div>
+
+            <h4 style="margin-top:12px">Security</h4>
+            <div class="field"><label>Password</label><div class="muted">Last changed: <span id="pw_changed">—</span></div></div>
+            <div style="text-align:right;margin-top:12px"><button class="btn ghost" onclick="openModal('changePassword')">Change Password</button></div>
           </div>
         </div>
-        <table id="productTable">
-          <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Stock</th><th>Actions</th></tr></thead>
-          <tbody></tbody>
-        </table>
       </section>
+
+      <!-- Placeholder for other views -->
+      <section id="view-products" class="view" style="display:none"><div class="panel"><h3>Products</h3><p class="muted">(same table as dashboard)</p></div></section>
+      <section id="view-receipts" class="view" style="display:none"><div class="panel"><h3>Receipts</h3><p class="muted">(list receipts)</p></div></section>
+      <section id="view-deliveries" class="view" style="display:none"><div class="panel"><h3>Deliveries</h3><p class="muted">(list deliveries)</p></div></section>
+      <section id="view-transfers" class="view" style="display:none"><div class="panel"><h3>Transfers</h3><p class="muted">(list transfers)</p></div></section>
+      <section id="view-settings" class="view" style="display:none"><div class="panel"><h3>Settings</h3><p class="muted">(app settings)</p></div></section>
 
       <div class="floating" title="Quick add" onclick="openModal('quick')">+</div>
 
@@ -110,19 +163,30 @@
   </div>
 
   <script>
-    // Simple in-memory data store (demo)
+    // Simple in-memory data store (demo) with a user
     const store = {
+      user: {id:1,name:'Rohit Koli',email:'rohit@example.com',role:'Inventory Manager',bio:'Keeps the shelves tidy and the records tidy-er.',avatar:null,password_changed:new Date().toLocaleString()},
       products: [
         {id:1,name:'Steel Rods',sku:'ST-001',category:'raw',unit:'kg',stock:127,locations:{main:127,prod:0}},
         {id:2,name:'Wooden Chair',sku:'CH-101',category:'finished',unit:'pcs',stock:43,locations:{main:10,prod:33}},
         {id:3,name:'Nails Pack',sku:'NA-09',category:'raw',unit:'box',stock:8,locations:{main:8,prod:0}},
       ],
-      receipts:[],deliveries:[],transfers:[],history:[]
+      receipts:[],deliveries:[],transfers:[],history:[{type:'login',text:'Logged in'},{type:'receipt',text:'Received 20 × Steel Rods'},{type:'delivery',text:'Shipped 3 × Wooden Chair'}]
     }
 
     // Utility
     const el = (s)=>document.querySelector(s)
     const elAll = (s)=>document.querySelectorAll(s)
+
+    // Navigation
+    document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click', ()=>{ const view = a.dataset.view; switchView(view); }))
+
+    function switchView(view){
+      document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active', a.dataset.view===view))
+      document.querySelectorAll('.view').forEach(v=>v.style.display=(v.id==='view-'+view)?'block':'none')
+      if(view==='dashboard'){render()}
+      if(view==='profile'){renderProfile()}
+    }
 
     // Render products table & KPIs
     function render(){
@@ -143,6 +207,30 @@
       el('#kpipendrec').textContent = store.receipts.filter(r=>r.status!=='Done').length
       el('#kpipenddel').textContent = store.deliveries.filter(d=>d.status!=='Done').length
       el('#kpitrans').textContent = store.transfers.length
+    }
+
+    // Profile rendering
+    function renderProfile(){
+      const u = store.user
+      const initials = (u.name||'').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase() || 'U'
+      const avatarEl = el('#avatar')
+      if(u.avatar){ avatarEl.style.backgroundImage = `url(${u.avatar})`; avatarEl.style.backgroundSize='cover'; avatarEl.textContent = '' } else { avatarEl.style.backgroundImage=''; avatarEl.textContent = initials }
+      el('#u_name').textContent = u.name
+      el('#u_role').textContent = u.role
+      el('#u_name_f').textContent = u.name
+      el('#u_email_f').textContent = u.email
+      el('#u_role_f').textContent = u.role
+      el('#u_bio_f').textContent = u.bio
+      el('#pw_changed').textContent = u.password_changed
+
+      const activity = el('#activityList')
+      activity.innerHTML = ''
+      store.history.slice().reverse().forEach(h=>{
+        const d = document.createElement('div')
+        d.style.padding='8px'; d.style.borderBottom='1px solid #f1f5f9'
+        d.innerHTML = `<div style="font-size:13px;color:var(--muted)">${h.type.toUpperCase()}</div><div style="font-weight:600">${h.text}</div>`
+        activity.appendChild(d)
+      })
     }
 
     // Modal manager
@@ -180,10 +268,29 @@
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveAdjustment(${p.id})'>Adjust</button></div>`
       } else if(type==='quick'){
         html = `<h3>Quick Actions</h3>
-          <div class='form-row'><button class='btn' onclick='openModal(\'receipt\')'>Receive Goods</button><button class='btn' onclick='openModal(\'delivery\')'>Ship Goods</button></div>
+          <div class='form-row'><button class='btn' onclick='openModal(' + "'receipt'" + ')'>Receive Goods</button><button class='btn' onclick='openModal(' + "'delivery'" + ')'>Ship Goods</button></div>
           <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
+      } else if(type==='editProfile'){
+        const u = store.user
+        html = `<h3>Edit Profile</h3>
+          <div class='form-row'><input id='u_name_i' placeholder='Full name' value='${u.name}' /></div>
+          <div class='form-row'><input id='u_email_i' placeholder='Email' value='${u.email}' /></div>
+          <div class='form-row'><input id='u_role_i' placeholder='Role' value='${u.role}' /></div>
+          <div class='form-row'><textarea id='u_bio_i' placeholder='Bio'>${u.bio}</textarea></div>
+          <div class='form-row'><label style='width:120px'>Avatar</label><input id='u_avatar_i' type='file' accept='image/*' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveProfile()'>Save</button></div>`
+      } else if(type==='changePassword'){
+        html = `<h3>Change Password</h3>
+          <div class='form-row'><input id='old_pw' type='password' placeholder='Current password' /></div>
+          <div class='form-row'><input id='new_pw' type='password' placeholder='New password' /></div>
+          <div class='form-row'><input id='new_pw2' type='password' placeholder='Confirm new password' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='changePassword()'>Change</button></div>`
       }
       modalContent.innerHTML = html
+
+      // file input handler for avatar
+      const fileInput = modalContent.querySelector('#u_avatar_i')
+      if(fileInput){ fileInput.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ()=>{ fileInput.dataset.preview = reader.result }; reader.readAsDataURL(f) }) }
     }
     function closeModal(){el('#modalBack').style.display='none'}
 
@@ -205,11 +312,10 @@
       const supplier = el('#r_supplier').value||'Unknown'; const pid = Number(el('#r_product').value); const qty = Number(el('#r_qty').value||0)
       if(qty<=0){alert('Enter valid qty');return}
       const product = store.products.find(p=>p.id===pid)
-      // create receipt and mark Done immediately for demo
       const rec = {id:Date.now(),supplier,product_id:pid,qty,status:'Done'}
       store.receipts.push(rec)
       product.stock += qty; product.locations.main = (product.locations.main||0)+qty
-      store.history.push({type:'receipt',product:product.name,qty})
+      store.history.push({type:'receipt',text:`Received ${qty} × ${product.name}`})
       closeModal(); render()
     }
 
@@ -221,7 +327,7 @@
       const del = {id:Date.now(),customer:cust,product_id:pid,qty,status:'Done'}
       store.deliveries.push(del)
       product.stock -= qty; product.locations.main = Math.max(0,(product.locations.main||0)-qty)
-      store.history.push({type:'delivery',product:product.name,qty})
+      store.history.push({type:'delivery',text:`Shipped ${qty} × ${product.name}`})
       closeModal(); render()
     }
 
@@ -232,14 +338,38 @@
       product.stock = counted; product.locations.main = counted
       store.adjustments = store.adjustments||[]
       store.adjustments.push({id:Date.now(),product_id:pid,counted_qty:counted,difference:diff})
-      store.history.push({type:'adjust',product:product.name,qty:diff})
+      store.history.push({type:'adjust',text:`Adjusted ${product.name} by ${diff}`})
       closeModal(); render()
+    }
+
+    // Profile save
+    function saveProfile(){
+      const u = store.user
+      u.name = el('#u_name_i').value.trim() || u.name
+      u.email = el('#u_email_i').value.trim() || u.email
+      u.role = el('#u_role_i').value.trim() || u.role
+      u.bio = el('#u_bio_i').value.trim() || u.bio
+      const fileInput = el('#modalContent').querySelector('#u_avatar_i')
+      if(fileInput && fileInput.dataset && fileInput.dataset.preview){ u.avatar = fileInput.dataset.preview }
+      u.password_changed = u.password_changed || new Date().toLocaleString()
+      store.history.push({type:'profile',text:`Updated profile`})
+      closeModal(); renderProfile(); alert('Profile saved (local demo)')
+    }
+
+    function changePassword(){
+      const oldpw = el('#old_pw').value; const newpw = el('#new_pw').value; const newpw2=el('#new_pw2').value
+      if(!newpw||newpw.length<6){alert('New password must be at least 6 chars');return}
+      if(newpw!==newpw2){alert('Passwords do not match');return}
+      // demo: we don't store the real password — just update timestamp and history
+      store.user.password_changed = new Date().toLocaleString()
+      store.history.push({type:'security',text:'Changed password'})
+      closeModal(); renderProfile(); alert('Password changed (demo)')
     }
 
     // click outside to close modal
     el('#modalBack').addEventListener('click', (e)=>{ if(e.target.id==='modalBack') closeModal() })
 
-    // search
+    // search filter
     el('#search').addEventListener('input', ()=>{
       const q = el('#search').value.toLowerCase()
       const rows = Array.from(elAll('#productTable tbody tr'))
@@ -247,7 +377,9 @@
     })
 
     // initial render
-    render()
+    render();
+    // ensure dashboard visible
+    switchView('dashboard')
   </script>
 </body>
 </html>
