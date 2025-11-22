@@ -3,32 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>IMS — Dashboard & Profile (Demo) — Updated</title>
+  <title>IMS — Dashboard & Profile (Demo)</title>
   <style>
-    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--accent-2:#1e40af;--muted:#6b7280;--text:#111;--filter-bg:#f1f5f9;--filter-accent:#eef2ff}
-    [data-theme="dark"]{--bg:#0b1020;--card:#071025;--accent:#60a5fa;--accent-2:#2563eb;--muted:#9ca3af;--text:#e6eef8;--filter-bg:#071426;--filter-accent:#062036}
+    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
     *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-    body{margin:0;background:var(--bg);color:var(--text)}
+    body{margin:0;background:var(--bg);color:#111}
     .app{display:flex;min-height:100vh}
     /* Sidebar */
-    .sidebar{width:250px;background:linear-gradient(180deg,#0f172a,#0b1220);color:#fff;padding:18px 16px;transition:width .32s cubic-bezier(.2,.9,.2,1),padding .32s ease;overflow:hidden}
-    .sidebar.collapsed{width:72px;padding:12px 10px}
-    .brand-row{display:flex;align-items:center;gap:12px}
-    .hamburger{width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03)}
-    .brand-full{font-weight:700;font-size:18px;margin-bottom:6px;white-space:nowrap;transition:opacity .22s,transform .22s}
-    .brand-short{font-weight:700;font-size:18px;margin-bottom:6px;white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .22s,transform .22s}
-    #sidebarSubtitle{color:var(--muted);font-size:13px;transition:opacity .22s,transform .22s}
-    .muted{color:var(--muted)}
+    .sidebar{width:250px;background:linear-gradient(180deg,#0f172a,#0b1220);color:#fff;padding:22px 16px}
+    .brand{font-weight:700;font-size:18px;margin-bottom:18px}
     .nav{margin-top:12px}
-
-    /* nav items with icon + label; icons shown when collapsed */
-    .nav a{display:flex;align-items:center;padding:10px 12px;border-radius:8px;color:#dbeafe;text-decoration:none;margin-bottom:6px;cursor:pointer;gap:12px;transition:background .12s,transform .12s}
-    .nav a .icon{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:18px}
-    .nav a .label{display:inline-flex;align-items:center;opacity:1;transform:translateX(0);transition:opacity .22s,transform .22s,margin .22s}
-    .sidebar.collapsed .nav a{justify-content:center;padding:10px}
-    .sidebar.collapsed .nav a .icon{display:inline-flex}
-    .sidebar.collapsed .nav a .label{opacity:0;transform:translateX(-8px);pointer-events:none;width:0;margin:0;padding:0}
-
+    .nav a{display:flex;align-items:center;padding:10px 12px;border-radius:8px;color:#dbeafe;text-decoration:none;margin-bottom:6px;cursor:pointer}
     .nav a.active{background:rgba(255,255,255,0.06)}
     .nav a:hover{background:rgba(255,255,255,0.03)}
     /* Main */
@@ -37,104 +22,95 @@
     .search{display:flex;gap:8px;align-items:center}
     .search input{padding:8px 12px;border-radius:10px;border:1px solid #e6eef8;min-width:220px}
     .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
-
-    /* Card styles (each box) */
-    .card{background:linear-gradient(180deg,var(--card),#fbfdff);padding:16px;border-radius:14px;box-shadow:0 8px 24px rgba(2,6,23,0.04);border:1px solid rgba(15,23,42,0.03);transition:transform .14s ease,box-shadow .14s ease}
-    .card:hover{transform:translateY(-6px);box-shadow:0 18px 36px rgba(2,6,23,0.06)}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06);cursor:pointer}
     .card h4{margin:0;font-size:13px;color:var(--muted)}
     .card p{margin:8px 0 0;font-weight:700;font-size:18px}
-
     /* Content areas */
-    .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04);border:1px solid rgba(15,23,42,0.02)}
+    .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
     .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #f1f5f9}
     th{font-size:13px;color:var(--muted)}
     .toolbar{display:flex;gap:8px;align-items:center}
-
-    /* Button improvements */
-    .btn{padding:8px 14px;border-radius:10px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#fff;cursor:pointer;font-weight:600;box-shadow:0 6px 18px rgba(37,99,235,0.12);transition:transform .12s ease,box-shadow .12s ease}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(37,99,235,0.16)}
-    .btn:active{transform:translateY(0)}
-    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.08);box-shadow:none;font-weight:600}
-    .btn.ghost:hover{background:rgba(255,255,255,0.02)}
-
+    .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(37,99,235,0.12)}
     .floating{position:fixed;right:28px;bottom:28px;background:var(--accent);color:#fff;padding:14px;border-radius:50%;font-weight:700;box-shadow:0 10px 30px rgba(2,6,23,0.2);cursor:pointer}
-
-    /* Filters: attractive filter box styles */
-    .filters{display:flex;gap:12px;align-items:center}
-    .filters select{appearance:none;-webkit-appearance:none;padding:10px 14px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:var(--filter-bg);min-width:180px;box-shadow:inset 0 -1px 0 rgba(255,255,255,0.02);font-weight:600;color:var(--text);cursor:pointer}
-    .filters select:focus{outline:none;box-shadow:0 6px 18px rgba(37,99,235,0.06)}
-    .filters select::-ms-expand{display:none}
-    .filter-wrapper{display:flex;align-items:center;gap:8px;padding:6px;background:linear-gradient(180deg,var(--filter-bg),var(--filter-accent));border-radius:12px;border:1px solid rgba(15,23,42,0.03)}
-    .filter-label{font-size:13px;color:var(--muted);margin-right:6px}
-
-    /* product grid (boxed products on dashboard) */
-    .product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
-    .product-box{background:linear-gradient(180deg,var(--card),#fbfdff);border-radius:12px;padding:14px;box-shadow:0 8px 20px rgba(2,6,23,0.04);display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid rgba(15,23,42,0.03);transition:transform .12s ease,box-shadow .12s ease}
-    .product-box:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.06)}
-    .product-meta{display:flex;flex-direction:column}
-    .product-name{font-weight:700}
-    .product-sku{font-size:13px;color:var(--muted)}
-    .qty-badge{background:linear-gradient(180deg,#eef2ff,#f8fbff);padding:8px 12px;border-radius:999px;font-weight:800;color:var(--accent);border:1px solid rgba(37,99,235,0.06)}
-    .product-actions button{margin-left:8px}
-
-    /* small inline qty next to add fields */
-    .inline-qty{display:inline-flex;align-items:center;gap:8px;margin-left:8px}
-    .inline-qty .qty-display{background:#eef2ff;padding:4px 8px;border-radius:8px;font-weight:700;color:var(--accent)}
-
+    .filters{display:flex;gap:8px;align-items:center}
+    /* modal */
+    .modal-back{position:fixed;inset:0;background:rgba(2,6,23,0.4);display:none;align-items:center;justify-content:center}
+    .modal{background:var(--card);padding:18px;border-radius:12px;min-width:360px}
+    .form-row{display:flex;gap:8px;margin-bottom:8px}
+    .form-row input,.form-row select, .form-row textarea{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8}
+    .muted{color:var(--muted);font-size:13px}
     /* profile */
     .profile{display:grid;grid-template-columns:260px 1fr;gap:14px}
     .profile-card{padding:18px;border-radius:12px;background:var(--card);box-shadow:0 6px 18px rgba(15,23,42,0.04);text-align:center}
     .avatar{width:120px;height:120px;border-radius:12px;background:linear-gradient(135deg,#e6eef8,#dbeafe);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:34px;color:var(--accent);margin-bottom:8px}
     .profile-details{padding:18px;background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
-    .field{Display:flex;gap:12px;align-items:center;margin-bottom:10px}
+    .field{display:flex;gap:12px;align-items:center;margin-bottom:10px}
     .field label{width:120px;color:var(--muted)}
     .activity{max-height:220px;overflow:auto}
-    /* My Cart / Orders special style */
-    .special{display:grid;grid-template-columns:1fr 320px;gap:12px}
-    .cart-panel{background:linear-gradient(180deg,#fff,#f8fafc);padding:14px;border-radius:12px}
-
     /* responsive */
-    @media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.app{flex-direction:column}.main{padding:12px}.profile{grid-template-columns:1fr}.product-grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.app{flex-direction:column}.main{padding:12px}.profile{grid-template-columns:1fr}}
+  /* sidebar collapse */
+    .sidebar{transition:width 0.3s ease,padding 0.3s ease}
+    .sidebar.collapsed{width:70px;padding:22px 6px}
+    .nav a span.label{transition:opacity 0.25s ease,transform 0.25s ease}
+    .sidebar.collapsed span.label{opacity:0;transform:translateX(-10px)}
+    .nav a .icon{margin-right:10px}
 
-    /* hide product sku when sidebar is collapsed so the compact nav doesn't expose extra text */
-    .sidebar.collapsed ~ .main .product-sku{display:none}
+    /* brand/subtitle blend when collapsed */
+    .sidebar .brand{transition:opacity 0.25s ease,transform 0.25s ease}
+    .sidebar .muted{transition:opacity 0.25s ease,transform 0.25s ease}
+    .sidebar.collapsed .brand{opacity:0;transform:none;pointer-events:none;position:absolute;}
+    .sidebar.collapsed .muted{opacity:0;transform:none;pointer-events:none;position:absolute;}
+      /* Filters — upgraded styles */
+    .filters{display:flex;gap:10px;align-items:center}
+    .filter-wrapper{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#f8fbff,#ffffff);padding:6px;border-radius:12px;border:1px solid rgba(15,23,42,0.04);box-shadow:0 6px 18px rgba(15,23,42,0.03)}
+    .filters select{appearance:none;-webkit-appearance:none;padding:10px 14px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent;min-width:160px;font-weight:600;color:var(--muted);cursor:pointer}
+    .filters select:focus{outline:none;box-shadow:0 6px 18px rgba(37,99,235,0.06)}
+    .filter-pill{background:linear-gradient(180deg,#eef2ff,#f3f8ff);padding:8px 12px;border-radius:999px;font-weight:700;color:var(--accent);border:1px solid rgba(37,99,235,0.06)}
+    .filter-search{display:flex;align-items:center;gap:8px;background:#fff;padding:6px;border-radius:10px;border:1px solid rgba(15,23,42,0.04)}
+    .filter-search input{border:none;padding:8px;outline:none}
+    @media (max-width:800px){.filters{flex-direction:column;align-items:flex-start}.filters select{min-width:100%}}
+      /* product grid & boxes */
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:8px}
+    .product-box{background:linear-gradient(180deg,var(--card),#fbfdff);border-radius:12px;padding:12px;box-shadow:0 8px 20px rgba(2,6,23,0.04);display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid rgba(15,23,42,0.03);transition:transform .12s ease,box-shadow .12s ease}
+    .product-box:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.06)}
+    .product-box .meta{display:flex;gap:12px;align-items:center}
+    .product-box .meta .thumb{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,#eef2ff,#f0f7ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+    .product-box .actions{display:flex;align-items:center;gap:10px}
+    .product-box .qty-badge{background:linear-gradient(180deg,#eef2ff,#f8fbff);padding:8px 12px;border-radius:999px;font-weight:800;color:var(--accent);border:1px solid rgba(37,99,235,0.06)}
 
-    /* small helpers */
-    .small{font-size:13px;color:var(--muted)}
-    .switch{display:inline-flex;align-items:center;gap:8px}
-    .switch input{width:0;height:0;opacity:0}
-    .switch .track{width:44px;height:24px;background:#ccc;border-radius:999px;position:relative}
-    .switch .thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:all .2s}
-    .switch input:checked + .track{background:var(--accent)}
-    .switch input:checked + .track .thumb{left:23px}
+      /* product detail (e-commerce style) */
+    .product-detail{display:flex;gap:18px;align-items:flex-start}
+    .product-detail .gallery{width:320px;min-width:200px}
+    .product-detail .gallery img{width:100%;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.08);display:block}
+    .product-detail .info{flex:1}
+    .product-detail .price{font-size:22px;font-weight:800;color:var(--accent);margin:8px 0}
+    .product-detail .desc{color:var(--muted);margin-top:8px}
+    .product-detail .buyrow{display:flex;gap:8px;align-items:center;margin-top:14px}
+
+    /* cart side panel */
+    .cart-side{position:fixed;right:-420px;top:0;height:100%;width:380px;background:var(--card);box-shadow:0 20px 60px rgba(2,6,23,0.2);padding:18px;transition:right .28s ease;z-index:60;overflow:auto}
+    .cart-side.open{right:0}
+    .cart-side h3{margin-top:0}
+    .cart-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9}
+
   </style>
 </head>
-<body id="bodyRoot">
+<body>
   <div class="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand-row">
-        <div class="hamburger" id="hamburger" title="Toggle sidebar" aria-expanded="true">
-          <!-- three lines -->
-          <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="2" rx="1" fill="white"/><rect y="5" width="18" height="2" rx="1" fill="white"/><rect y="10" width="18" height="2" rx="1" fill="white"/></svg>
-        </div>
-        <div>
-          <div class="brand-full">StockMaster — IMS</div>
-          <div class="brand-short" style="display:none">IMS</div>
-          <div id="sidebarSubtitle" class="small">Inventory Management System</div>
-        </div>
-      </div>
-      <div style="height:8px"></div>
-      <nav class="nav" id="mainNav">
-        <!-- removed Home as requested; added icons for collapsed state -->
-        <a data-view="dashboard" class="active"><span class="icon">📊</span><span class="label">Dashboard</span></a>
+    <aside class="sidebar">
+      <div class="hamburger" id="hamburgerBtn" style="cursor:pointer;font-size:22px;margin-bottom:14px">☰</div>
+      <div class="brand">StockMaster — IMS</div>
+      <div class="muted">Inventory Management System (Demo)</div>
+      <nav class="nav">
+        <a data-view="dashboard" class="active"><span class="icon">🏠</span><span class="label">Dashboard</span></a>
         <a data-view="products"><span class="icon">📦</span><span class="label">Products</span></a>
-        <a data-view="receipts"><span class="icon">🧾</span><span class="label">Receipts</span></a>
-        <a data-view="deliveries"><span class="icon">🚚</span><span class="label">Delivery Orders</span></a>
+        <a data-view="receipts"><span class="icon">📥</span><span class="label">Receipts</span></a>
+        <a data-view="deliveries"><span class="icon">📤</span><span class="label">Delivery Orders</span></a>
         <a data-view="transfers"><span class="icon">🔁</span><span class="label">Transfers</span></a>
-        <a data-view="mycart"><span class="icon">🛒</span><span class="label">My Cart</span></a>
-        <a data-view="myorders"><span class="icon">📜</span><span class="label">My Orders</span></a>
         <a data-view="settings"><span class="icon">⚙️</span><span class="label">Settings</span></a>
       </nav>
     </aside>
@@ -146,65 +122,36 @@
           <div class="muted">Role: Inventory Manager</div>
         </div>
         <div class="toolbar">
-          <button class="btn ghost" id="btnAddProduct">+ Product</button>
-          <button class="btn ghost" id="btnAddReceipt">+ Receipt</button>
-          <button class="btn" id="btnAddDelivery">+ Delivery</button>
+          <button class="btn ghost" id="btnCart">Cart (<span id="cartCount">0</span>)</button>
+          <button class="btn ghost" onclick="openModal('product')">+ Product</button>
+          <button class="btn ghost" onclick="openModal('receipt')">+ Receipt</button>
+          <button class="btn" onclick="openModal('delivery')">+ Delivery</button>
         </div>
       </div>
 
       <!-- Views container -->
-
-      <!-- Home: consolidated overview (cards + products + quick receipts/deliveries) -->
-      <section id="view-home" class="view" style="display:none">
-        <section class="cards">
-          <div class="card"><h4>Total Products</h4><p id="home_kpiproducts">0</p></div>
-          <div class="card"><h4>Low Stock</h4><p id="home_kpilow">0</p></div>
-          <div class="card"><h4>Pending Receipts</h4><p id="home_kpipendrec">0</p></div>
-          <div class="card"><h4>Pending Deliveries</h4><p id="home_kpipenddel">0</p></div>
-          <div class="card"><h4>Transfers</h4><p id="home_kpitrans">0</p></div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-header">
-            <h3>Quick Inventory</h3>
-            <div class="filters">
-              <select id="home_filterLocation"><option value="all">All locations</option><option value="main">Main Warehouse</option><option value="prod">Production Rack</option></select>
-              <select id="home_filterCategory"><option value="all">All categories</option><option value="raw">Raw Material</option><option value="finished">Finished Goods</option></select>
-            </div>
-          </div>
-
-          <div id="homeProductGrid" class="product-grid"></div>
-
-          <div style="display:flex;gap:12px;margin-top:12px">
-            <div class="panel" style="flex:1"><h4>Receipts (recent)</h4><div id="homeReceipts" class="muted">No recent receipts</div></div>
-            <div class="panel" style="flex:1"><h4>Deliveries (recent)</h4><div id="homeDeliveries" class="muted">No recent deliveries</div></div>
-          </div>
-        </section>
-      </section>
       <section id="view-dashboard" class="view">
         <section class="cards">
-          <div class="card"><h4>Total Products</h4><p id="kpiproducts">0</p></div>
-          <div class="card"><h4>Low Stock</h4><p id="kpilow">0</p></div>
-          <div class="card"><h4>Pending Receipts</h4><p id="kpipendrec">0</p></div>
-          <div class="card"><h4>Pending Deliveries</h4><p id="kpipenddel">0</p></div>
-          <div class="card"><h4>Transfers</h4><p id="kpitrans">0</p></div>
+          <div class="card" id="cardTotal"><h4>Total Products</h4><p id="kpiproducts">0</p></div>
+          <div class="card" id="cardLow"><h4>Low Stock</h4><p id="kpilow">0</p></div>
+          <div class="card" id="cardRec"><h4>Pending Receipts</h4><p id="kpipendrec">0</p></div>
+          <div class="card" id="cardDel"><h4>Pending Deliveries</h4><p id="kpipenddel">0</p></div>
+          <div class="card" id="cardTrans"><h4>Transfers</h4><p id="kpitrans">0</p></div>
         </section>
 
         <section class="panel">
           <div class="panel-header">
-            <h3>Products (boxed)</h3>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-              <div class="filters">
-                <select id="filterLocation"><option value="all">All locations</option><option value="main">Main Warehouse</option><option value="prod">Production Rack</option></select>
-                <select id="filterCategory"><option value="all">All categories</option><option value="raw">Raw Material</option><option value="finished">Finished Goods</option></select>
-                
-              </div>
-              
-
-          <!-- Product grid: boxed product cards (dashboard) -->
+            <h3>Products</h3>
+            <div class="filters">
+              <select id="filterLocation"><option value="all">All locations</option><option value="main">Main Warehouse</option><option value="prod">Production Rack</option></select>
+              <select id="filterCategory"><option value="all">All categories</option><option value="raw">Raw Material</option><option value="finished">Finished Goods</option></select>
+            </div>
+          </div>
           <div id="productGrid" class="product-grid"></div>
-
-          <!-- keep old table for Products view (unchanged) -->
+          <table id="productTable" style="margin-top:12px">
+            <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Total Stock</th><th>Main</th><th>Prod</th><th>Reorder</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
         </section>
       </section>
 
@@ -215,12 +162,12 @@
             <div id="avatar" class="avatar">RK</div>
             <div style="font-weight:700;font-size:18px;margin-top:6px" id="u_name">Rohit Koli</div>
             <div class="muted" id="u_role">Inventory Manager</div>
-            <div style="margin-top:12px"><button class="btn ghost" id="btnEditProfile">Edit Profile</button></div>
+            <div style="margin-top:12px"><button class="btn ghost" onclick="openModal('editProfile')">Edit Profile</button></div>
             <hr style="margin:14px 0;border:none;border-top:1px solid #f1f5f9" />
             <div style="text-align:left">
               <div class="muted" style="font-size:13px;margin-bottom:8px">Quick Actions</div>
-              <button class="btn" id="btnReceiveGoods">Receive Goods</button>
-              <button class="btn ghost" id="btnShipGoods">Ship Goods</button>
+              <button class="btn" onclick="openModal('receipt')">Receive Goods</button>
+              <button class="btn ghost" onclick="openModal('delivery')">Ship Goods</button>
             </div>
           </div>
 
@@ -232,60 +179,42 @@
             <div class="field"><label>Bio</label><div id="u_bio_f" class="muted">Keeps the shelves tidy and the records tidy-er.</div></div>
 
             <h4 style="margin-top:12px">Recent Activity</h4>
-            <div class="activity" id="activityList"></div>
+            <div class="activity" id="activityList">
+              <!-- history items -->
+            </div>
 
             <h4 style="margin-top:12px">Security</h4>
             <div class="field"><label>Password</label><div class="muted">Last changed: <span id="pw_changed">—</span></div></div>
-            <div style="text-align:right;margin-top:12px"><button class="btn ghost" id="btnChangePassword">Change Password</button></div>
+            <div style="text-align:right;margin-top:12px"><button class="btn ghost" onclick="openModal('changePassword')">Change Password</button></div>
           </div>
         </div>
       </section>
 
-      <!-- Products view: keep table (unchanged) -->
+      <!-- Placeholder for other views -->
       <section id="view-products" class="view" style="display:none">
-        <div class="panel"><h3>Products</h3>
-          <p class="muted">(same table as dashboard — boxed view kept on dashboard)</p>
-          <table id="productTable">
-            <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Stock</th><th>Actions</th></tr></thead>
+        <div class="panel">
+          <h3>Products</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div class="muted">Manage products — create/update, location stock, categories, reordering rules</div>
+            <div>
+              <button class="btn ghost" onclick="openModal('product')">+ New Product</button>
+              <button class="btn" onclick="switchView('dashboard')">Back</button>
+            </div>
+          </div>
+          <div id="productGridProducts" class="product-grid" style="margin-top:12px"></div>
+          <table id="productAdminTable" style="margin-top:12px">
+            <thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Unit</th><th>Total</th><th>Main</th><th>Prod</th><th>Reorder lvl</th><th>Reorder qty</th><th>Actions</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </section>
-
       <section id="view-receipts" class="view" style="display:none"><div class="panel"><h3>Receipts</h3><p class="muted">(list receipts)</p></div></section>
       <section id="view-deliveries" class="view" style="display:none"><div class="panel"><h3>Deliveries</h3><p class="muted">(list deliveries)</p></div></section>
       <section id="view-transfers" class="view" style="display:none"><div class="panel"><h3>Transfers</h3><p class="muted">(list transfers)</p></div></section>
-
-      <!-- My Cart (special) -->
-      <section id="view-mycart" class="view" style="display:none">
-        <div class="panel special">
-          <div>
-            <h3>My Cart</h3>
-            <p class="muted">Items you've added for quick dispatch.</p>
-            <div id="cartList"></div>
-          </div>
-          <div class="cart-panel">
-            <h4>Summary</h4>
-            <div id="cartSummary">No items</div>
-            <div style="margin-top:12px;text-align:right"><button class="btn">Checkout</button></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- My Orders (special) -->
-      <section id="view-myorders" class="view" style="display:none">
-        <div class="panel">
-          <h3>My Orders</h3>
-          <p class="muted">Historical orders and statuses.</p>
-          <div id="ordersList"></div>
-        </div>
-      </section>
-
-      <!-- Settings: include Profile tab under settings as requested -->
       <section id="view-settings" class="view" style="display:none">
         <div class="panel">
           <h3>Settings</h3>
-          <p class="muted">App settings</p>
+          <p class="muted">(app settings)</p>
 
           <hr style="margin:12px 0" />
           <h4>Profile (quick)</h4>
@@ -295,8 +224,8 @@
               <div id="settings_name" style="font-weight:700">Rohit Koli</div>
               <div class="muted" id="settings_role">Inventory Manager</div>
               <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-                <button class="btn ghost" id="btnLoginProfile">Login / My Profile</button>
-                <button class="btn ghost" id="btnOpenFullProfile">Open Full Profile</button>
+                <button class="btn ghost" onclick="openModal('editProfile')">Login / My Profile</button>
+                <button class="btn ghost" onclick="switchView('profile')">Open Full Profile</button>
               </div>
             </div>
           </div>
@@ -314,157 +243,154 @@
         </div>
       </section>
 
-      <div class="floating" title="Quick add" id="btnQuick">+</div>
+      <div class="floating" title="Quick add" onclick="openModal('quick')">+</div>
 
     </main>
+
+    <!-- cart side panel -->
+    <aside id="cartSide" class="cart-side" aria-hidden="true">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Your Cart</h3>
+        <div><button class="btn ghost" onclick="closeCartSide()">Close</button></div>
+      </div>
+      <div id="cartSideItems" style="margin-top:12px"></div>
+      <div id="cartSideFooter" style="margin-top:12px;text-align:right"></div>
+    </aside>
+
   </div>
 
   <!-- modal backdrop -->
-  <div id="modalBack" class="modal-back" style="position:fixed;inset:0;background:rgba(2,6,23,0.4);display:none;align-items:center;justify-content:center">
-    <div class="modal" id="modalContent" style="background:var(--card);padding:18px;border-radius:12px;min-width:360px">
+  <div id="modalBack" class="modal-back">
+    <div class="modal" id="modalContent">
       <!-- dynamic content inserted by JS -->
     </div>
   </div>
 
   <script>
-    // Simple in-memory data store (demo) with a user
+    // Load user from localStorage if exists
+    let savedUser = {};
+    try { savedUser = JSON.parse(localStorage.getItem('ims_user')) || {}; } catch(e){ savedUser = {}; }
+
     const store = {
-      user: {id:1,name:'Rohit Koli',email:'rohit@example.com',role:'Inventory Manager',bio:'Keeps the shelves tidy and the records tidy-er.',avatar:null,password_changed:new Date().toLocaleString()},
+      user: {
+        id:1,
+        name: savedUser.name || 'Rohit Koli',
+        email: savedUser.email || 'rohit@example.com',
+        role: savedUser.role || 'Inventory Manager',
+        bio: savedUser.bio || 'Keeps the shelves tidy and the records tidy-er.',
+        avatar: savedUser.avatar || null,
+        password_changed: savedUser.password_changed || new Date().toLocaleString()
+      },
       products: [
-        {id:1,name:'Steel Rods',sku:'ST-001',category:'raw',unit:'kg',stock:127,locations:{main:127,prod:0}},
-        {id:2,name:'Wooden Chair',sku:'CH-101',category:'finished',unit:'pcs',stock:43,locations:{main:10,prod:33}},
-        {id:3,name:'Nails Pack',sku:'NA-09',category:'raw',unit:'box',stock:8,locations:{main:8,prod:0}},
+        {id:1,name:'Steel Rods',sku:'ST-001',category:'raw',unit:'kg',stock:127,locations:{main:127,prod:0},reorder_level:20,reorder_qty:50},
+        {id:2,name:'Wooden Chair',sku:'CH-101',category:'finished',unit:'pcs',stock:43,locations:{main:10,prod:33},reorder_level:10,reorder_qty:20},
+        {id:3,name:'Nails Pack',sku:'NA-09',category:'raw',unit:'box',stock:8,locations:{main:8,prod:0},reorder_level:10,reorder_qty:30},
+        {id:4,name:'Paint Bucket',sku:'PB-55',category:'raw',unit:'ltr',stock:22,locations:{main:22,prod:0},reorder_level:5,reorder_qty:10},
+        {id:5,name:'Plastic Frame',sku:'PF-88',category:'finished',unit:'pcs',stock:5,locations:{main:5,prod:0},reorder_level:8,reorder_qty:20},
+        {id:6,name:'Copper Wire',sku:'CW-19',category:'raw',unit:'roll',stock:67,locations:{main:67,prod:0},reorder_level:15,reorder_qty:40}
       ],
-      receipts:[],deliveries:[],transfers:[],history:[{type:'login',text:'Logged in'},{type:'receipt',text:'Received 20 × Steel Rods'},{type:'delivery',text:'Shipped 3 × Wooden Chair'}],
-      cart:[],orders:[]
+      receipts:[],deliveries:[],transfers:[],history:[{type:'login',text:'Logged in'},{type:'receipt',text:'Received 20 × Steel Rods'},{type:'delivery',text:'Shipped 3 × Wooden Chair'}]
     }
 
     // Utility
     const el = (s)=>document.querySelector(s)
     const elAll = (s)=>document.querySelectorAll(s)
 
-    // attach navigation handlers
-    document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click', ()=>{ const view = a.dataset.view; switchView(view); }))
-
-    // wire topbar and repeated buttons (use IDs to avoid inline onclick and allow bundling after functions defined)
-    document.getElementById('btnAddProduct').addEventListener('click', ()=>openModal('product'))
-    document.getElementById('btnAddReceipt').addEventListener('click', ()=>openModal('receipt'))
-    document.getElementById('btnAddDelivery').addEventListener('click', ()=>openModal('delivery'))
-    document.getElementById('btnQuick').addEventListener('click', ()=>openModal('quick'))
-    document.getElementById('btnEditProfile').addEventListener('click', ()=>openModal('editProfile'))
-    document.getElementById('btnReceiveGoods').addEventListener('click', ()=>openModal('receipt'))
-    document.getElementById('btnShipGoods').addEventListener('click', ()=>openModal('delivery'))
-    document.getElementById('btnChangePassword').addEventListener('click', ()=>openModal('changePassword'))
-    document.getElementById('btnLoginProfile').addEventListener('click', ()=>openModal('editProfile'))
-    document.getElementById('btnOpenFullProfile').addEventListener('click', ()=>switchView('profile'))
-
-    // hamburger (toggle collapse) and subtitle click behavior
-    const hamburger = document.getElementById('hamburger')
-    const sidebar = document.getElementById('sidebar')
-    const subtitle = document.getElementById('sidebarSubtitle')
-    hamburger.addEventListener('click', ()=>{
-      // toggle collapsed class only; CSS handles transitions for labels/brand
-      const collapsed = sidebar.classList.toggle('collapsed')
-      hamburger.setAttribute('aria-expanded', String(!collapsed))
-      // ensure no inline display styles remain (prevent glitches)
-      const brandFull = document.querySelector('.brand-full')
-      const brandShort = document.querySelector('.brand-short')
-      const subtitleEl = document.getElementById('sidebarSubtitle')
-      if(brandFull) brandFull.style.opacity = ''
-      if(brandShort) brandShort.style.opacity = ''
-      if(subtitleEl) subtitleEl.style.opacity = ''
-    })
-
-    // Theme handling
-    const bodyRoot = document.getElementById('bodyRoot')
-    const themeToggle = document.getElementById('themeToggle')
-    function applyTheme(dark){
-      if(dark){ document.documentElement.setAttribute('data-theme','dark'); themeToggle.checked = true } else { document.documentElement.removeAttribute('data-theme'); themeToggle.checked = false }
-      try{ localStorage.setItem('sm_dark', dark ? '1' : '0') }catch(e){}
+    // expose toggleSidebar on window to ensure it's available to onclick attributes
+    window.toggleSidebar = function(){
+      const sb = document.querySelector('.sidebar');
+      const collapsed = sb.classList.toggle('collapsed');
+      sb.setAttribute('aria-expanded', String(!collapsed));
     }
-    // initialize theme from localStorage
-    try{ const v = localStorage.getItem('sm_dark'); applyTheme(v==='1') }catch(e){ applyTheme(false) }
-    themeToggle.addEventListener('change', ()=>{ applyTheme(themeToggle.checked) })
 
-    function switchView(view){
-      if(!view) return
+    // Navigation wiring
+    document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click', ()=>{ const view = a.dataset.view; switchView(view); } ))
+
+    window.switchView = function(view){
       document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active', a.dataset.view===view))
       document.querySelectorAll('.view').forEach(v=>v.style.display=(v.id==='view-'+view)?'block':'none')
-      if(view==='home'){ renderHome() }
-      if(view==='dashboard'){ render() }
-      if(view==='profile'){ renderProfile() }
-      if(view==='products'){ renderProductsTable() }
-      if(view==='mycart'){ renderCart() }
-      if(view==='myorders'){ renderOrders() }
-      if(view==='settings'){ renderSettingsProfile() }
+      if(view==='dashboard'){render()}
+      if(view==='profile'){renderProfile()}
+      if(view==='products'){renderProductsAdmin()}
+      if(view==='receipts'){renderReceipts()}
+      if(view==='deliveries'){renderDeliveries()}
+      if(view==='transfers'){renderTransfers()}
     }
 
-    // Render products grid & KPIs
+    // Render products table & KPIs (dashboard grid)
     function render(){
       const grid = el('#productGrid')
-      grid.innerHTML = ''
-      store.products.forEach(p=>{
-        const box = document.createElement('div')
-        box.className='product-box'
-        box.innerHTML = `<div class="product-meta"><div class="product-name">${p.name}</div><div class="product-sku">${p.sku} • ${p.category}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="qty-badge">${p.stock}</div><div><button class='btn ghost' data-action='edit' data-id='${p.id}'>Edit</button> <button class='btn ghost' data-action='adjust' data-id='${p.id}'>Adjust</button></div></div>`
-        grid.appendChild(box)
-      })
-      // attach per-box handlers
-      document.querySelectorAll('[data-action="edit"]').forEach(btn=>btn.addEventListener('click', (e)=>openModal('editProduct',Number(e.currentTarget.dataset.id))))
-      document.querySelectorAll('[data-action="adjust"]').forEach(btn=>btn.addEventListener('click', (e)=>openModal('adjust',Number(e.currentTarget.dataset.id))))
+      if(grid){
+        grid.innerHTML=''
+        store.products.forEach(p=>{
+          const low = p.stock <= (p.reorder_level||10)
+          const box = document.createElement('div')
+          box.className = 'product-box'
+          box.style.display = 'flex'
+          box.style.justifyContent = 'space-between'
+          box.style.alignItems = 'center'
+          box.innerHTML = `
+            <div style="display:flex;gap:12px;align-items:center;cursor:pointer" onclick="openProductCard(${p.id})">
+              <div style="width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,#eef2ff,#f0f7ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)">${p.sku.split('-')[0]}</div>
+              <div>
+                <div style="font-weight:700">${p.name}</div>
+                <div class="muted" style="font-size:13px">${p.sku} • ${p.category}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="qty-badge">${p.stock}</div>
+              ${low?`<div class="filter-pill" title="Below reorder level">Reorder</div>`:''}
+            </div>`
+          grid.appendChild(box)
+        })
+      }
+
       updateKPIs()
+    }
+
+    // Products admin rendering (detailed product tab)
+    function renderProductsAdmin(){
+      const gridProducts = el('#productGridProducts');
+      if(gridProducts){
+        gridProducts.innerHTML = '';
+        store.products.forEach(p=>{
+          const box = document.createElement('div');
+          box.className='product-box';
+          box.innerHTML = `
+            <div class='meta' style='cursor:pointer' onclick="openProductCard(${p.id})">
+              <div class='thumb'>${p.sku.split('-')[0]}</div>
+              <div>
+                <div class='title'>${p.name}</div>
+                <div class='muted' style='font-size:13px'>${p.sku} • ${p.category}</div>
+              </div>
+            </div>
+            <div class='actions'>
+              <div class='qty-badge'>${p.stock}</div>
+              <button class='btn ghost' onclick="openModal('editProduct',${p.id})">Edit</button>
+            </div>`;
+          gridProducts.appendChild(box);
+        })
+      }
+
+      const tbody = el('#productAdminTable tbody')
+      if(tbody){
+        tbody.innerHTML = ''
+        store.products.forEach(p=>{
+          const tr = document.createElement('tr')
+          tr.innerHTML = `<td>${p.name}</td><td>${p.sku}</td><td>${p.category}</td><td>${p.unit}</td><td>${p.stock}</td><td>${(p.locations.main||0)}</td><td>${(p.locations.prod||0)}</td><td>${p.reorder_level||''}</td><td>${p.reorder_qty||''}</td><td><button class='btn ghost' onclick="openModal('editProduct',${p.id})">Edit</button> <button class='btn ghost' onclick="openModal('adjust',${p.id})">Adjust</button></td>`
+          tbody.appendChild(tr)
+        })
+      }
+
+      render()
     }
 
     function updateKPIs(){
       el('#kpiproducts').textContent = store.products.length
-      el('#kpilow').textContent = store.products.filter(p=>p.stock<=10).length
+      el('#kpilow').textContent = store.products.filter(p=>p.stock<= (p.reorder_level||10)).length
       el('#kpipendrec').textContent = store.receipts.filter(r=>r.status!=='Done').length
       el('#kpipenddel').textContent = store.deliveries.filter(d=>d.status!=='Done').length
       el('#kpitrans').textContent = store.transfers.length
-    }
-
-    // Render for Home consolidated view
-    function renderHome(){
-      // cards
-      el('#home_kpiproducts').textContent = store.products.length
-      el('#home_kpilow').textContent = store.products.filter(p=>p.stock<=10).length
-      el('#home_kpipendrec').textContent = store.receipts.filter(r=>r.status!=='Done').length
-      el('#home_kpipenddel').textContent = store.deliveries.filter(d=>d.status!=='Done').length
-      el('#home_kpitrans').textContent = store.transfers.length
-
-      // product grid
-      const grid = el('#homeProductGrid')
-      grid.innerHTML = ''
-      store.products.forEach(p=>{
-        const box = document.createElement('div')
-        box.className='product-box'
-        box.innerHTML = `<div class="product-meta"><div class="product-name">${p.name}</div><div class="product-sku">${p.sku} • ${p.category}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="qty-badge">${p.stock}</div><div><button class='btn ghost' data-action='edit-h' data-id='${p.id}'>Edit</button> <button class='btn ghost' data-action='adjust-h' data-id='${p.id}'>Adjust</button></div></div>`
-        grid.appendChild(box)
-      })
-      document.querySelectorAll('[data-action="edit-h"]').forEach(btn=>btn.addEventListener('click', (e)=>openModal('editProduct',Number(e.currentTarget.dataset.id))))
-      document.querySelectorAll('[data-action="adjust-h"]').forEach(btn=>btn.addEventListener('click', (e)=>openModal('adjust',Number(e.currentTarget.dataset.id))))
-
-      // receipts & deliveries quick lists
-      const hr = el('#homeReceipts')
-      const hd = el('#homeDeliveries')
-      if(store.receipts.length===0){ hr.innerHTML = '<div class="muted">No recent receipts</div>' } else { hr.innerHTML = store.receipts.slice(-5).map(r=>`<div style="padding:6px 0">${r.qty} × ${(store.products.find(p=>p.id===r.product_id)||{}).name} — ${r.supplier}</div>`).join('') }
-      if(store.deliveries.length===0){ hd.innerHTML = '<div class="muted">No recent deliveries</div>' } else { hd.innerHTML = store.deliveries.slice(-5).map(d=>`<div style="padding:6px 0">${d.qty} × ${(store.products.find(p=>p.id===d.product_id)||{}).name} — ${d.customer}</div>`).join('') }
-    }
-
-    // Products table render (for products view)
-    function renderProductsTable(){
-      const tbody = el('#productTable tbody')
-      tbody.innerHTML=''
-      store.products.forEach(p=>{
-        const tr = document.createElement('tr')
-        tr.innerHTML=`<td>${p.name}</td><td>${p.sku}</td><td>${p.category}</td><td>${p.unit}</td><td>${p.stock}</td>
-        <td><button class='btn ghost' data-action='edit-t' data-id='${p.id}'>Edit</button> <button class='btn ghost' data-action='adjust-t' data-id='${p.id}'>Adjust</button></td>`
-        tbody.appendChild(tr)
-      })
-      // attach table button handlers
-      document.querySelectorAll('[data-action="edit-t"]').forEach(btn=>btn.addEventListener('click', (e)=>openModal('editProduct',Number(e.currentTarget.dataset.id))))
-      document.querySelectorAll('[data-action="adjust-t"]').forEach(btn=>btn.addEventListener('click', (e)=>openModal('adjust',Number(e.currentTarget.dataset.id))))
-      updateKPIs()
     }
 
     // Profile rendering
@@ -481,12 +407,6 @@
       el('#u_bio_f').textContent = u.bio
       el('#pw_changed').textContent = u.password_changed
 
-      // also update settings quick profile (profile under settings)
-      el('#settings_name').textContent = u.name
-      el('#settings_role').textContent = u.role
-      const settingsAvatar = el('#settings_avatar')
-      settingsAvatar.textContent = initials
-
       const activity = el('#activityList')
       activity.innerHTML = ''
       store.history.slice().reverse().forEach(h=>{
@@ -497,7 +417,7 @@
       })
     }
 
-    // Modal manager (with live qty display beside stock input)
+    // Modal manager
     function openModal(type,id){
       const modalBack = el('#modalBack')
       const modalContent = el('#modalContent')
@@ -507,33 +427,41 @@
         html = ` <h3>Add Product</h3>
           <div class='form-row'><input id='p_name' placeholder='Name' /><input id='p_sku' placeholder='SKU' /></div>
           <div class='form-row'><select id='p_cat'><option value='raw'>Raw Material</option><option value='finished'>Finished Goods</option></select><input id='p_unit' placeholder='Unit (kg/pcs/box)' /></div>
-          <div class='form-row'><input id='p_stock' type='number' placeholder='Initial stock (optional)' /> <div class="inline-qty">Qty live: <div class="qty-display" id="live_p_stock">0</div></div></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Cancel</button> <button class='btn' id='saveProductBtn'>Save</button></div>`
+          <div class='form-row'><input id='p_stock' type='number' placeholder='Initial stock (total)' /></div>
+          <div class='form-row'><input id='p_loc_main' type='number' placeholder='Main location stock (optional)' /><input id='p_loc_prod' type='number' placeholder='Production stock (optional)' /></div>
+          <div class='form-row'><input id='p_reorder_level' type='number' placeholder='Reorder level (notify when below)' /><input id='p_reorder_qty' type='number' placeholder='Reorder quantity' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveProduct()'>Save</button></div>`
       } else if(type==='editProduct'){
         const p = store.products.find(x=>x.id===id)
-        html = `<h3>Edit Product</h3>
+        html = `<h3>Edit Product — ${p.name}</h3>
           <div class='form-row'><input id='p_name' value='${p.name}' placeholder='Name' /><input id='p_sku' value='${p.sku}'/></div>
           <div class='form-row'><select id='p_cat'><option value='raw' ${p.category==='raw'?'selected':''}>Raw Material</option><option value='finished' ${p.category==='finished'?'selected':''}>Finished Goods</option></select><input id='p_unit' value='${p.unit}' /></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Cancel</button> <button class='btn' id='updateProductBtn'>Update</button></div>`
+          <div class='form-row'><input id='p_stock' type='number' value='${p.stock}' placeholder='Total stock' /></div>
+          <div class='form-row'><input id='p_loc_main' type='number' value='${p.locations.main||0}' placeholder='Main location stock' /><input id='p_loc_prod' type='number' value='${p.locations.prod||0}' placeholder='Production stock' /></div>
+          <div class='form-row'><input id='p_reorder_level' type='number' value='${p.reorder_level||0}' placeholder='Reorder level' /><input id='p_reorder_qty' type='number' value='${p.reorder_qty||0}' placeholder='Reorder quantity' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='updateProduct(${p.id})'>Update</button></div>`
       } else if(type==='receipt'){
         html = `<h3>Create Receipt</h3>
           <div class='form-row'><input id='r_supplier' placeholder='Supplier name' /></div>
-          <div class='form-row'><select id='r_product'>${store.products.map(p=>`<option value='${p.id}'>${p.name} — ${p.sku}</option>`).join('')}</select><input id='r_qty' type='number' placeholder='Qty' /></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Cancel</button> <button class='btn' id='saveReceiptBtn'>Receive</button></div>`
+          <div class='form-row'><select id='r_product'>${store.products.map(p=>`<option value='${p.id}' ${id===p.id?"selected":""}>${p.name} — ${p.sku}</option>`).join('')}</select><input id='r_qty' type='number' placeholder='Qty' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveReceipt()'>Receive</button></div>`
       } else if(type==='delivery'){
         html = `<h3>Create Delivery</h3>
           <div class='form-row'><input id='d_customer' placeholder='Customer name' /></div>
           <div class='form-row'><select id='d_product'>${store.products.map(p=>`<option value='${p.id}'>${p.name} — ${p.sku} (stock:${p.stock})</option>`).join('')}</select><input id='d_qty' type='number' placeholder='Qty' /></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Cancel</button> <button class='btn' id='saveDeliveryBtn'>Dispatch</button></div>`
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveDelivery()'>Dispatch</button></div>`
       } else if(type==='adjust'){
         const p = store.products.find(x=>x.id===id)
         html = `<h3>Adjust Stock — ${p.name}</h3>
-          <div class='form-row'><input id='a_count' type='number' value='${p.stock}' /> <div class="inline-qty">Current: <div class="qty-display">${p.stock}</div></div></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Cancel</button> <button class='btn' id='saveAdjustBtn'>Adjust</button></div>`
+          <div class='form-row'><input id='a_count' type='number' value='${p.stock}' /></div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveAdjustment(${p.id})'>Adjust</button></div>`
       } else if(type==='quick'){
         html = `<h3>Quick Actions</h3>
-          <div class='form-row'><button class='btn' id='quickRecBtn'>Receive Goods</button><button class='btn' id='quickDelBtn'>Ship Goods</button></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Close</button></div>`
+          <div class='form-row'>
+            <button class='btn' onclick="openModal('receipt')">Receive Goods</button>
+            <button class='btn' onclick="openModal('delivery')">Ship Goods</button>
+          </div>
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
       } else if(type==='editProfile'){
         const u = store.user
         html = `<h3>Edit Profile</h3>
@@ -542,140 +470,202 @@
           <div class='form-row'><input id='u_role_i' placeholder='Role' value='${u.role}' /></div>
           <div class='form-row'><textarea id='u_bio_i' placeholder='Bio'>${u.bio}</textarea></div>
           <div class='form-row'><label style='width:120px'>Avatar</label><input id='u_avatar_i' type='file' accept='image/*' /></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Cancel</button> <button class='btn' id='saveProfileBtn'>Save</button></div>`
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='saveProfile()'>Save</button></div>`
       } else if(type==='changePassword'){
         html = `<h3>Change Password</h3>
           <div class='form-row'><input id='old_pw' type='password' placeholder='Current password' /></div>
           <div class='form-row'><input id='new_pw' type='password' placeholder='New password' /></div>
           <div class='form-row'><input id='new_pw2' type='password' placeholder='Confirm new password' /></div>
-          <div style='text-align:right'><button class='btn ghost' id='cancelBtn'>Cancel</button> <button class='btn' id='changePasswordBtn'>Change</button></div>`
+          <div style='text-align:right'><button class='btn ghost' onclick='closeModal()'>Cancel</button> <button class='btn' onclick='changePassword()'>Change</button></div>`
       }
-
       modalContent.innerHTML = html
 
-      // wire up live qty display for Add Product modal
-      const live = modalContent.querySelector('#p_stock')
-      const liveDisplay = modalContent.querySelector('#live_p_stock')
-      if(live && liveDisplay){
-        live.addEventListener('input', ()=>{ liveDisplay.textContent = Number(live.value||0) })
-        // initialize
-        liveDisplay.textContent = Number(live.value||0)
-      }
-
-      // common cancel button
-      const cancel = modalContent.querySelector('#cancelBtn')
-      if(cancel) cancel.addEventListener('click', closeModal)
-
-      // hook modal buttons to functions (bind current id where relevant)
-      const saveBtn = modalContent.querySelector('#saveProductBtn')
-      if(saveBtn) saveBtn.addEventListener('click', saveProduct)
-      const updateBtn = modalContent.querySelector('#updateProductBtn')
-      if(updateBtn) updateBtn.addEventListener('click', ()=>updateProduct(id))
-      const saveRecBtn = modalContent.querySelector('#saveReceiptBtn')
-      if(saveRecBtn) saveRecBtn.addEventListener('click', saveReceipt)
-      const saveDelBtn = modalContent.querySelector('#saveDeliveryBtn')
-      if(saveDelBtn) saveDelBtn.addEventListener('click', saveDelivery)
-      const saveAdjBtn = modalContent.querySelector('#saveAdjustBtn')
-      if(saveAdjBtn) saveAdjBtn.addEventListener('click', ()=>saveAdjustment(id))
-      const quickRec = modalContent.querySelector('#quickRecBtn')
-      if(quickRec) quickRec.addEventListener('click', ()=>{ closeModal(); openModal('receipt') })
-      const quickDel = modalContent.querySelector('#quickDelBtn')
-      if(quickDel) quickDel.addEventListener('click', ()=>{ closeModal(); openModal('delivery') })
-      const saveProfileBtn = modalContent.querySelector('#saveProfileBtn')
-      if(saveProfileBtn) saveProfileBtn.addEventListener('click', saveProfile)
-      const changePwBtn = modalContent.querySelector('#changePasswordBtn')
-      if(changePwBtn) changePwBtn.addEventListener('click', changePassword)
-
-      // file input handler for avatar
       const fileInput = modalContent.querySelector('#u_avatar_i')
       if(fileInput){ fileInput.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ()=>{ fileInput.dataset.preview = reader.result }; reader.readAsDataURL(f) }) }
     }
+    function closeModal(){el('#modalBack').style.display='none'}
 
-    function closeModal(){ el('#modalBack').style.display='none'; el('#modalContent').innerHTML = '' }
+    // Open product detail card (e-commerce like)
+    function openProductCard(pid){
+      const p = store.products.find(x=>x.id===pid); if(!p) return; const modalBack = el('#modalBack'); const modalContent = el('#modalContent');
+      modalBack.style.display='flex'
+      const imgUrl = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="#eef6ff"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#2563eb" font-size="24">Product Image</text></svg>'
+      const needsReorder = p.stock <= (p.reorder_level||0)
+      modalContent.innerHTML = `
+        <div class="product-detail">
+          <div class="gallery"><img src="${imgUrl}" alt="${p.name}" /></div>
+          <div class="info">
+            <h2 style="margin:0">${p.name}</h2>
+            <div class="muted" style="margin-top:6px">SKU: ${p.sku} • Category: ${p.category}</div>
+            <div class="price">Total Stock: ${p.stock} ${p.unit}</div>
+            <div class="desc">Locations — Main: ${p.locations.main||0}, Production: ${p.locations.prod||0}</div>
+            <div class="desc">Reorder rule — Level: ${p.reorder_level||'—'} · Qty: ${p.reorder_qty||'—'}</div>
+            ${needsReorder?`<div style="margin-top:8px;color:#dc2626;font-weight:800">⚠️ Below reorder level — consider ordering ${p.reorder_qty||'(set qty)'} units</div>`:''}
+            <div class="buyrow">
+              <input id="card_qty" type="number" value="1" min="1" style="width:80px;padding:8px;border-radius:8px;border:1px solid #e6eef8" />
+              <button class='btn' onclick="addToCart(${p.id})">Add to Cart</button>
+              <button class='btn' onclick="openModal('receipt',${p.id})">+ Add Stock</button>
+              <button class='btn ghost' onclick="openModal('adjust',${p.id})">Adjust</button>
+              <button class='btn ghost' onclick='closeModal()'>Close</button>
+            </div>
+          </div>
+        </div>`
+    }
 
     // CRUD actions
     function saveProduct(){
-      const nameEl = el('#p_name'); const skuEl = el('#p_sku'); const catEl = el('#p_cat'); const unitEl = el('#p_unit'); const stockEl = el('#p_stock')
-      const name = nameEl ? nameEl.value.trim() : ''
-      const sku = skuEl ? skuEl.value.trim() : ''
-      const cat = catEl ? catEl.value : 'finished'
-      const unit = unitEl ? unitEl.value.trim() : 'pcs'
-      const stock = stockEl ? Number(stockEl.value||0) : 0
+      const name = el('#p_name').value.trim(); const sku = el('#p_sku').value.trim(); const cat = el('#p_cat').value; const unit = el('#p_unit').value.trim()||'pcs'; 
+      const stock = Number(el('#p_stock').value||0)
+      const locMain = Number(el('#p_loc_main').value||0)
+      const locProd = Number(el('#p_loc_prod').value||0)
+      const reorder_level = Number(el('#p_reorder_level').value||0)
+      const reorder_qty = Number(el('#p_reorder_qty').value||0)
       if(!name||!sku){alert('Please provide name and SKU');return}
       const id = Date.now()
-      store.products.push({id,name,sku,category:cat,unit,stock,locations:{main:stock,prod:0}})
-      closeModal(); render(); renderProductsTable(); renderHome()
-    }
+      const totalStock = stock || (locMain + locProd)
+      const newProduct = {id,name,sku,category:cat,unit,stock:totalStock,locations:{main:locMain,prod:locProd},reorder_level,reorder_qty}
+      store.products.push(newProduct)
 
+      // automatically add newly created product to cart (qty:1) as requested
+      store.cart = store.cart || []
+      const existing = store.cart.find(c=>c.product_id===id)
+      if(existing){ existing.qty += 1 } else { store.cart.push({product_id:id,qty:1}) }
+      updateCartCount()
+
+      closeModal(); renderProductsAdmin();
+      // open cart side to show user the item
+      openCartSide();
+      renderCartSide();
+    }
     function updateProduct(id){
       const p = store.products.find(x=>x.id===id)
-      if(!p) return
-      const nameEl = el('#p_name'); const skuEl = el('#p_sku'); const catEl = el('#p_cat'); const unitEl = el('#p_unit')
-      p.name = nameEl ? nameEl.value : p.name
-      p.sku = skuEl ? skuEl.value : p.sku
-      p.category = catEl ? catEl.value : p.category
-      p.unit = unitEl ? unitEl.value : p.unit
-      closeModal(); render(); renderProductsTable(); renderHome()
+      p.name = el('#p_name').value; p.sku = el('#p_sku').value; p.category = el('#p_cat').value; p.unit = el('#p_unit').value
+      const stock = Number(el('#p_stock').value||0)
+      const locMain = Number(el('#p_loc_main').value||0)
+      const locProd = Number(el('#p_loc_prod').value||0)
+      p.locations = {main:locMain,prod:locProd}
+      p.stock = stock || (locMain + locProd)
+      p.reorder_level = Number(el('#p_reorder_level').value||0)
+      p.reorder_qty = Number(el('#p_reorder_qty').value||0)
+      closeModal(); renderProductsAdmin();
     }
 
     function saveReceipt(){
-      const supplier = el('#r_supplier') ? el('#r_supplier').value||'Unknown' : 'Unknown'
-      const pid = el('#r_product') ? Number(el('#r_product').value) : null
-      const qty = el('#r_qty') ? Number(el('#r_qty').value||0) : 0
-      if(!pid || qty<=0){alert('Enter valid product and qty');return}
+      const supplier = el('#r_supplier').value||'Unknown'; const pid = Number(el('#r_product').value); const qty = Number(el('#r_qty').value||0)
+      if(qty<=0){alert('Enter valid qty');return}
       const product = store.products.find(p=>p.id===pid)
-      const rec = {id:Date.now(),supplier,product_id:pid,qty,status:'Done'}
+      const rec = {id:Date.now(),supplier,product_id:pid,qty,status:'Pending',date:new Date().toLocaleString()}
       store.receipts.push(rec)
       if(product){ product.stock += qty; product.locations.main = (product.locations.main||0)+qty }
       store.history.push({type:'receipt',text:`Received ${qty} × ${product ? product.name : 'Product #' + pid}`})
-      closeModal(); render(); renderProductsTable(); renderHome()
+      closeModal(); renderProductsAdmin(); renderReceipts();
     }
 
     function saveDelivery(){
-      const cust = el('#d_customer') ? el('#d_customer').value||'Customer' : 'Customer'
-      const pid = el('#d_product') ? Number(el('#d_product').value) : null
-      const qty = el('#d_qty') ? Number(el('#d_qty').value||0) : 0
-      if(!pid || qty<=0){alert('Enter valid product and qty');return}
+      const cust = el('#d_customer').value||'Customer'; const pid=Number(el('#d_product').value); const qty = Number(el('#d_qty').value||0)
+      if(qty<=0){alert('Enter valid qty');return}
       const product = store.products.find(p=>p.id===pid)
       if(product && product.stock<qty){alert('Not enough stock');return}
-      const del = {id:Date.now(),customer:cust,product_id:pid,qty,status:'Done'}
+      const del = {id:Date.now(),customer:cust,product_id:pid,qty,status:'Pending',date:new Date().toLocaleString()}
       store.deliveries.push(del)
       if(product){ product.stock -= qty; product.locations.main = Math.max(0,(product.locations.main||0)-qty) }
       store.history.push({type:'delivery',text:`Shipped ${qty} × ${product ? product.name : 'Product #' + pid}`})
-      closeModal(); render(); renderProductsTable(); renderHome()
+      closeModal(); renderProductsAdmin(); renderDeliveries();
     }
 
     function saveAdjustment(pid){
-      const countedEl = el('#a_count')
-      const counted = countedEl ? Number(countedEl.value||0) : 0
+      const counted = Number(el('#a_count').value||0)
       const product = store.products.find(p=>p.id===pid)
-      if(!product) return
       const diff = counted - product.stock
       product.stock = counted; product.locations.main = counted
       store.adjustments = store.adjustments||[]
-      store.adjustments.push({id:Date.now(),product_id:pid,counted_qty:counted,difference:diff})
+      store.adjustments.push({id:Date.now(),product_id:pid,counted_qty:counted,difference:diff,date:new Date().toLocaleString()})
       store.history.push({type:'adjust',text:`Adjusted ${product.name} by ${diff}`})
-      closeModal(); render(); renderProductsTable(); renderHome()
+      closeModal(); renderProductsAdmin(); renderTransfers();
     }
 
-    // Profile save
+    // Transfers
+    function openTransferModal(){ openModal('transfer') }
+    function saveTransfer(){
+      const from = el('#t_from').value||'Main'
+      const to = el('#t_to').value||'Store'
+      const pid = Number(el('#t_product').value)
+      const qty = Number(el('#t_qty').value||0)
+      if(!pid||qty<=0){ alert('Enter valid product and quantity'); return }
+      const product = store.products.find(p=>p.id===pid)
+      const tr = {id:Date.now(),from,to,product_id:pid,qty,status:'Pending',date:new Date().toLocaleString()}
+      store.transfers.push(tr)
+      store.history.push({type:'transfer',text:`Transfer ${qty} × ${product ? product.name : pid} from ${from} to ${to}`})
+      closeModal(); renderProductsAdmin(); renderTransfers();
+    }
+
+    // Render receipts/deliveries/transfers
+    function renderReceipts(){
+      const view = el('#view-receipts')
+      if(!view) return
+      const panel = view.querySelector('.panel')
+      if(!panel) return
+      const list = store.receipts.slice().reverse()
+      if(list.length===0){ panel.innerHTML = '<h3>Receipts</h3><p class="muted">No receipts</p>'; return }
+      panel.innerHTML = '<h3>Receipts</h3>' + list.map(r=>{
+        // receipts may contain items array or single product_id
+        if(r.items){
+          return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">Receipt #${r.id}</div><div class="muted">Customer: ${r.customer} • Items: ${r.qty} • Status: ${r.status} • ${r.date}</div><div style="margin-top:8px">${r.items.map(it=>`<div>${it.name} — Qty: ${it.qty}</div>`).join('')}</div></div>`
+        }
+        const p = store.products.find(x=>x.id===r.product_id) || {}
+        return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">Supplier: ${r.supplier || r.customer || '—'} • Qty: ${r.qty} • Status: ${r.status} • ${r.date}</div></div>`
+      }).join('')
+    }
+
+    function renderDeliveries(){
+      const view = el('#view-deliveries')
+      if(!view) return
+      const panel = view.querySelector('.panel')
+      if(!panel) return
+      const list = store.deliveries.slice().reverse()
+      if(list.length===0){ panel.innerHTML = '<h3>Deliveries</h3><p class="muted">No deliveries</p>'; return }
+      panel.innerHTML = '<h3>Deliveries</h3>' + list.map(d=>{
+        const p = store.products.find(x=>x.id===d.product_id) || {}
+        return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">Customer: ${d.customer} • Qty: ${d.qty} • Status: ${d.status} • ${d.date}</div><div style="margin-top:8px"><button class='btn ghost' data-id='${d.id}' data-act='del-mark'>Mark Done</button></div></div>`
+      }).join('')
+      panel.querySelectorAll('[data-act="del-mark"]').forEach(b=>b.addEventListener('click', (e)=>{
+        const id = Number(e.currentTarget.dataset.id); const del = store.deliveries.find(r=>r.id===id); if(del){ del.status='Done'; renderDeliveries(); updateKPIs() }
+      }))
+    }
+
+    function renderTransfers(){
+      const view = el('#view-transfers')
+      if(!view) return
+      const panel = view.querySelector('.panel')
+      if(!panel) return
+      const list = store.transfers.slice().reverse()
+      if(list.length===0){ panel.innerHTML = '<h3>Transfers</h3><p class="muted">No transfers</p>'; return }
+      panel.innerHTML = '<h3>Transfers</h3>' + list.map(t=>{
+        const p = store.products.find(x=>x.id===t.product_id) || {}
+        return `<div style="padding:10px;border-bottom:1px solid #f1f5f9"><div style="font-weight:700">${p.name || 'Unknown'}</div><div class="muted">From: ${t.from} • To: ${t.to} • Qty: ${t.qty} • Status: ${t.status} • ${t.date}</div><div style="margin-top:8px"><button class='btn ghost' data-id='${t.id}' data-act='tr-mark'>Mark Done</button></div></div>`
+      }).join('')
+      panel.querySelectorAll('[data-act="tr-mark"]').forEach(b=>b.addEventListener('click', (e)=>{
+        const id = Number(e.currentTarget.dataset.id); const tr = store.transfers.find(r=>r.id===id); if(tr){ tr.status='Done'; renderTransfers(); updateKPIs() }
+      }))
+    }
+
+    // Profile save (persist to localStorage)
     function saveProfile(){
       const u = store.user
-      const nameEl = el('#u_name_i'); const emailEl = el('#u_email_i'); const roleEl = el('#u_role_i'); const bioEl = el('#u_bio_i')
-      u.name = nameEl ? nameEl.value.trim() || u.name : u.name
-      u.email = emailEl ? emailEl.value.trim() || u.email : u.email
-      u.role = roleEl ? roleEl.value.trim() || u.role : u.role
-      u.bio = bioEl ? bioEl.value.trim() || u.bio : u.bio
+      u.name = el('#u_name_i').value.trim() || u.name
+      u.email = el('#u_email_i').value.trim() || u.email
+      u.role = el('#u_role_i').value.trim() || u.role
+      u.bio = el('#u_bio_i').value.trim() || u.bio
       const fileInput = el('#modalContent').querySelector('#u_avatar_i')
       if(fileInput && fileInput.dataset && fileInput.dataset.preview){ u.avatar = fileInput.dataset.preview }
       u.password_changed = u.password_changed || new Date().toLocaleString()
       store.history.push({type:'profile',text:`Updated profile`})
-      closeModal(); renderProfile(); alert('Profile saved (local demo)')
+      localStorage.setItem('ims_user', JSON.stringify(u))
+      closeModal(); renderProfile(); alert('Profile saved (local storage updated)')
     }
 
     function changePassword(){
-      const newpw = el('#new_pw') ? el('#new_pw').value : ''
-      const newpw2 = el('#new_pw2') ? el('#new_pw2').value : ''
+      const oldpw = el('#old_pw').value; const newpw = el('#new_pw').value; const newpw2=el('#new_pw2').value
       if(!newpw||newpw.length<6){alert('New password must be at least 6 chars');return}
       if(newpw!==newpw2){alert('Passwords do not match');return}
       store.user.password_changed = new Date().toLocaleString()
@@ -683,65 +673,129 @@
       closeModal(); renderProfile(); alert('Password changed (demo)')
     }
 
-    // Cart & Orders (simple demo implementations)
-    function addToCart(productId, qty=1){
-      const p = store.products.find(x=>x.id===productId)
-      if(!p) return
-      const existing = store.cart.find(c=>c.product_id===productId)
-      if(existing){ existing.qty += qty } else { store.cart.push({product_id:productId,qty}) }
-      renderCart(); renderHome()
-    }
-
-    function renderCart(){
-      const list = el('#cartList')
-      list.innerHTML = ''
-      if(store.cart.length===0){ list.innerHTML = '<div class="muted">Cart is empty</div>'; el('#cartSummary').textContent='No items'; return }
-      store.cart.forEach(item=>{
-        const p = store.products.find(x=>x.id===item.product_id)
-        const row = document.createElement('div')
-        row.style.display='flex'; row.style.justifyContent='space-between'; row.style.padding='8px 0'; row.innerHTML = `<div>${p.name} <div class="muted" style="font-size:13px">${p.sku}</div></div><div style="display:flex;gap:8px;align-items:center"><div>${item.qty}</div><button class='btn ghost' data-action='remove-cart' data-id='${p.id}'>Remove</button></div>`
-        list.appendChild(row)
-      })
-      document.querySelectorAll('[data-action="remove-cart"]').forEach(b=>b.addEventListener('click',(e)=>removeFromCart(Number(e.currentTarget.dataset.id))))
-      el('#cartSummary').textContent = `${store.cart.length} item(s)`
-    }
-
-    function removeFromCart(id){ store.cart = store.cart.filter(c=>c.product_id!==id); renderCart(); renderHome() }
-
-    function renderOrders(){
-      const elOrders = el('#ordersList'); elOrders.innerHTML=''
-      if(store.orders.length===0){ elOrders.innerHTML = '<div class="muted">No orders yet</div>'; return }
-      store.orders.forEach(o=>{
-        const d = document.createElement('div'); d.style.padding='8px'; d.style.borderBottom='1px solid #f1f5f9'; d.innerHTML = `<div style="font-weight:700">Order #${o.id}</div><div class="muted">Status: ${o.status}</div>`
-        elOrders.appendChild(d)
-      })
-    }
-
-    function renderSettingsProfile(){
-      const u = store.user
-      el('#settings_name').textContent = u.name
-      el('#settings_role').textContent = u.role
-      const sa = el('#settings_avatar')
-      const initials = (u.name||'').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase()
-      if(sa) sa.textContent = initials
-    }
-
     // click outside to close modal
     el('#modalBack').addEventListener('click', (e)=>{ if(e.target.id==='modalBack') closeModal() })
 
-    // search filter (affects table view only for simplicity)
+    // search filter
     el('#search').addEventListener('input', ()=>{
       const q = el('#search').value.toLowerCase()
-      const rows = Array.from(elAll('#productTable tbody tr'))
+      const rows = Array.from(elAll('#productAdminTable tbody tr'))
       rows.forEach(r=>{ r.style.display = (r.textContent.toLowerCase().includes(q)) ? '' : 'none' })
     })
 
-    // initial render
-    render();
-    renderProductsTable();
-    renderHome();
-    // ensure dashboard visible
-    switchView('dashboard')
+    // KPI click handlers
+    el('#cardTotal').addEventListener('click',()=>{ switchView('dashboard'); render(); });
+    el('#cardLow').addEventListener('click',()=>{ switchView('dashboard'); showLowStock(); });
+    el('#cardRec').addEventListener('click',()=>{ switchView('receipts'); });
+    el('#cardDel').addEventListener('click',()=>{ switchView('deliveries'); });
+    el('#cardTrans').addEventListener('click',()=>{ switchView('transfers'); });
+
+    function showLowStock(){
+      const grid = el('#productGrid'); if(!grid) return;
+      grid.innerHTML = '';
+      const low = store.products.filter(p => Number(p.stock) <= (p.reorder_level||10));
+      if(low.length===0){ grid.innerHTML = '<div class="muted">No low-stock items</div>'; return }
+      low.forEach(p=>{
+        const box = document.createElement('div'); box.className='product-box';
+        box.innerHTML = `
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,#fff1f0,#fff7f6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#dc2626">${p.sku.split('-')[0]}</div>
+            <div>
+              <div style="font-weight:700">${p.name}</div>
+              <div class="muted" style="font-size:13px">${p.sku} • ${p.category}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="qty-badge">${p.stock}</div>
+          </div>`
+        grid.appendChild(box);
+      })
+    }
+
+    // CART
+    store.cart = store.cart || []
+    function addToCart(pid){
+      const qtyInput = document.getElementById('card_qty')
+      const qty = qtyInput ? Number(qtyInput.value||1) : 1
+      if(qty<=0){ alert('Enter valid quantity'); return }
+      const p = store.products.find(x=>x.id===pid)
+      if(!p){ alert('Product not found'); return }
+      const existing = store.cart.find(c=>c.product_id===pid)
+      if(existing){ existing.qty += qty } else { store.cart.push({product_id:pid,qty}) }
+      updateCartCount()
+      alert(`${qty} × ${p.name} added to cart`)
+      closeModal()
+    }
+
+    function updateCartCount(){ const count = store.cart.reduce((s,i)=>s+i.qty,0); const elc = document.getElementById('cartCount'); if(elc) elc.textContent = count }
+
+    // legacy modal cart kept
+    function openCart(){ const modalBack = el('#modalBack'); const modalContent = el('#modalContent'); modalBack.style.display='flex'; renderCart(modalContent) }
+    function renderCart(container){
+      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); return {p,qty:ci.qty} })
+      if(items.length===0){ container.innerHTML = `<h3>Your Cart</h3><p class="muted">Cart is empty</p><div style="text-align:right;margin-top:12px"><button class='btn ghost' onclick='closeModal()'>Close</button></div>`; return }
+      let totalItems = 0
+      const rows = items.map(it=>{ totalItems += it.qty; return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9"><div><div style="font-weight:700">${it.p.name}</div><div class='muted' style='font-size:13px'>SKU: ${it.p.sku}</div></div><div style="display:flex;gap:8px;align-items:center"><div class='muted'>Qty: ${it.qty}</div><button class='btn ghost' onclick='removeFromCart(${it.p.id})'>Remove</button></div></div>` }).join('')
+      container.innerHTML = `<h3>Your Cart</h3>${rows}<div style="padding:10px 0;text-align:right"><strong>Total items: ${totalItems}</strong></div><div style='text-align:right;display:flex;gap:8px;justify-content:flex-end'><button class='btn ghost' onclick='closeModal()'>Continue shopping</button><button class='btn' onclick='checkoutCart()'>Pay & Generate Receipt</button></div>`
+    }
+    function removeFromCart(pid){ store.cart = store.cart.filter(c=>c.product_id!==pid); updateCartCount(); renderCart(el('#modalContent')) }
+    function checkoutCart(){
+      if(store.cart.length===0){ alert('Cart is empty'); return }
+      const customer = prompt('Customer name for the order:', 'Walk-in') || 'Walk-in'
+      const orderId = Date.now(); const date = new Date().toLocaleString()
+      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); if(p){ p.stock = Math.max(0,p.stock - ci.qty); p.locations.main = Math.max(0,(p.locations.main||0)-ci.qty) } return {product_id:ci.product_id,qty:ci.qty,name:(store.products.find(x=>x.id===ci.product_id)||{}).name} })
+      const del = {id:orderId,customer,items,qty:items.reduce((s,i)=>s+i.qty,0),status:'Done',date}
+      store.deliveries.push(del); store.history.push({type:'order',text:`Order ${orderId} by ${customer} — ${del.qty} items`})
+      el('#modalBack').style.display='flex'; el('#modalContent').innerHTML = `<h3>Receipt — Order ${orderId}</h3><div class="muted">Customer: ${customer} • ${date}</div><div style="margin-top:12px">` + items.map(it=>`<div style="display:flex;justify-content:space-between;padding:6px 0"><div>${it.name}</div><div>Qty: ${it.qty}</div></div>`).join('') + `</div><div style="text-align:right;margin-top:12px"><button class='btn' onclick='printReceipt()'>Print</button><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
+      store.cart = []
+      updateCartCount(); renderProductsAdmin(); renderDeliveries();
+    }
+
+    function printReceipt(){ const content = document.getElementById('modalContent').innerHTML; const w = window.open('', '_blank'); w.document.write(`<html><head><title>Receipt</title></head><body>${content}</body></html>`); w.document.close(); w.print() }
+
+    // CART SIDE PANEL functions
+    window.openCartSide = function(){ const cartSide = document.getElementById('cartSide'); if(!cartSide) return; cartSide.classList.add('open'); cartSide.setAttribute('aria-hidden','false'); renderCartSide() }
+    window.closeCartSide = function(){ const cartSide = document.getElementById('cartSide'); if(!cartSide) return; cartSide.classList.remove('open'); cartSide.setAttribute('aria-hidden','true') }
+
+    function renderCartSide(){
+      const container = el('#cartSideItems'); const footer = el('#cartSideFooter')
+      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); return {p,qty:ci.qty} })
+      if(items.length===0){ container.innerHTML = `<div class="muted">Cart is empty</div>`; footer.innerHTML = `<div style="text-align:right"><button class='btn ghost' onclick='closeCartSide()'>Close</button></div>`; updateCartCount(); return }
+      const rows = items.map(it=>`<div class="cart-item"><div><div style="font-weight:700">${it.p.name}</div><div class='muted' style='font-size:13px'>SKU: ${it.p.sku}</div></div><div style="display:flex;gap:8px;align-items:center"><div class='muted'>${it.qty}</div><button class='btn ghost' onclick='removeFromCartSide(${it.p.id})'>Remove</button></div></div>`).join('')
+      container.innerHTML = rows
+      footer.innerHTML = `<div style="text-align:right;display:flex;gap:8px;justify-content:flex-end"><button class='btn ghost' onclick='closeCartSide()'>Continue</button><button class='btn' onclick='checkoutCartSide()'>Pay</button></div>`
+      updateCartCount()
+    }
+
+    function removeFromCartSide(pid){ store.cart = store.cart.filter(c=>c.product_id!==pid); updateCartCount(); renderCartSide(); }
+
+    // Modified checkout for side panel: create a receipt (payment), store in receipts, and adjust stock
+    function checkoutCartSide(){
+      if(store.cart.length===0){ alert('Cart is empty'); return }
+      const customer = prompt('Customer name for the order:', store.user.name || 'Walk-in') || (store.user.name || 'Walk-in')
+      const receiptId = Date.now(); const date = new Date().toLocaleString()
+      const items = store.cart.map(ci=>{ const p = store.products.find(x=>x.id===ci.product_id); if(p){ p.stock = Math.max(0,p.stock - ci.qty); p.locations.main = Math.max(0,(p.locations.main||0)-ci.qty) } return {product_id:ci.product_id,qty:ci.qty,name:(store.products.find(x=>x.id===ci.product_id)||{}).name} })
+      const totalQty = items.reduce((s,i)=>s+i.qty,0)
+      const receipt = {id:receiptId,customer,items,qty:totalQty,status:'Paid',date}
+      store.receipts.push(receipt)
+      store.history.push({type:'receipt',text:`Payment Receipt ${receiptId} by ${customer} — ${totalQty} items`})
+
+      // show receipt modal
+      el('#modalBack').style.display='flex'; el('#modalContent').innerHTML = `<h3>Receipt — ${receiptId}</h3><div class="muted">Customer: ${customer} • ${date}</div><div style="margin-top:12px">` + items.map(it=>`<div style="display:flex;justify-content:space-between;padding:6px 0"><div>${it.name}</div><div>Qty: ${it.qty}</div></div>`).join('') + `</div><div style="text-align:right;margin-top:12px"><button class='btn' onclick='printReceipt()'>Print</button><button class='btn ghost' onclick='closeModal()'>Close</button></div>`
+
+      // clear cart and update views
+      store.cart = []
+      updateCartCount(); renderProductsAdmin(); renderReceipts(); closeCartSide(); updateKPIs();
+    }
+
+    // initial wiring & render
+    document.getElementById('btnCart').addEventListener('click', ()=>{ window.openCartSide() })
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=>{ window.toggleSidebar() })
+
+    updateCartCount();
+    renderProductsAdmin();
+    switchView('dashboard');
+
   </script>
 </body>
 </html>
